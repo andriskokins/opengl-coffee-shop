@@ -22,13 +22,36 @@ GLuint setup_texture(const char* filename)
 	unsigned char* pxls = stbi_load(filename, &w, &h, &chan, 0);
 	if (pxls)
 	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, pxls);
+		// Choose format based on number of channels
+		GLint internalFormat;
+		GLenum format;
+
+		if (chan == 1) {
+			internalFormat = GL_RED;
+			format = GL_RED;
+		}
+		else if (chan == 3) {
+			internalFormat = GL_RGB;
+			format = GL_RGB;
+		}
+		else if (chan == 4) {
+			internalFormat = GL_RGBA;
+			format = GL_RGBA;
+		}
+		else {
+			printf("Unsupported number of channels: %d in %s\n", chan, filename);
+			stbi_image_free(pxls);
+			return 0;
+		}
+
+		glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, w, h, 0, format, GL_UNSIGNED_BYTE, pxls);
 		glGenerateMipmap(GL_TEXTURE_2D);
 		delete[] pxls;
 		glDisable(GL_TEXTURE_2D);
 		glDisable(GL_BLEND);
 	}
 
+	printf("Texture: Successfully loaded %s\n", filename);
 	return texObject;
 }
 

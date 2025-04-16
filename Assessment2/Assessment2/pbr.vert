@@ -2,13 +2,13 @@
 
 
 layout (location = 0) in vec3 vPos;
-layout (location = 1) in vec3 vCol;
+layout (location = 1) in vec4 vCol;
 layout (location = 2) in vec3 vNor;
 layout (location = 3) in vec2 vTexCoords;
 
 #define MAX_LIGHTS 7
 
-out vec3 col;
+out vec4 col;
 out vec3 nor;
 out vec3 FragPosWorldSpace;
 out vec2 TexCoords;

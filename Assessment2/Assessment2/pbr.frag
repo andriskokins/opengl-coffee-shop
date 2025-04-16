@@ -32,20 +32,21 @@ uniform int numLights;      // Actual number of lights being used
 
 layout (location = 0) out vec4 fColour;
 
-in vec3 col;
+in vec4 col;
 in vec3 nor;
 in vec3 FragPosWorldSpace;
 in vec4 FragPosLightSpace[MAX_LIGHTS];
 in vec2 TexCoords;
 
 uniform vec3 camPos;
-uniform bool useTexture;
+uniform bool hasOpacity;
 uniform sampler2D shadowMaps[MAX_LIGHTS];
 // Change from single cubemap to array
 uniform samplerCube shadowCubeMaps[MAX_LIGHTS]; // Replace shadowCubeMap
 uniform vec3 pointLightPositions[MAX_LIGHTS];   // Replace pointLightPos
 uniform mat4 lightSpaceMatrices[MAX_LIGHTS];
 uniform float farPlane;
+uniform float textureScale;
 
 // material parameters
 uniform sampler2D albedoMap;
@@ -53,6 +54,7 @@ uniform sampler2D normalMap;
 uniform sampler2D metallicMap;
 uniform sampler2D roughnessMap;
 uniform sampler2D aoMap;
+uniform sampler2D opacityMap;
 
 // Function declarations
 vec3 fresnelSchlick(float, vec3);
@@ -74,19 +76,24 @@ void main()
     vec3 N = normalize(nor);
     vec3 V = normalize(camPos - FragPosWorldSpace);
 
-    if(useTexture) {
-        albedo = pow(texture(albedoMap, TexCoords).rgb, vec3(2.2));
-        metallic = texture(metallicMap, TexCoords).r;
-        roughness = texture(roughnessMap, TexCoords).r;
-        ao = texture(aoMap, TexCoords).r;
-        N = getNormalFromMap();
-        
-    } else {
-        albedo = col; // Use the vertex color instead
-        metallic = 0.05;
-        roughness = 0.9;
-        ao = 1.0;
-    }
+    float defaultRoughness = 0.5;
+    float defaultMetallic = 0.0;
+    float defaultAO = 1.0;
+ 
+    // Full PBR texture mode
+    vec2 scaledTexCoords = TexCoords * textureScale;
+
+    albedo = pow(texture(albedoMap, scaledTexCoords).rgb, vec3(2.2));
+    // Use texture or default value
+    metallic = textureSize(metallicMap, 0).x > 1 ? 
+                texture(metallicMap, scaledTexCoords).r : defaultMetallic;
+    roughness = textureSize(roughnessMap, 0).x > 1 ? 
+                texture(roughnessMap, scaledTexCoords).r : defaultRoughness;
+    ao = textureSize(aoMap, 0).x > 1 ? 
+        texture(aoMap, scaledTexCoords).r : defaultAO;
+            
+    // Use normal map if available, otherwise use vertex normal
+    normal = textureSize(normalMap, 0).x > 1 ? getNormalFromMap() : vec3(1);
 
     vec3 F0 = vec3(0.04);
     F0 = mix(F0, albedo, metallic);
@@ -106,7 +113,7 @@ void main()
     color = color / (color + vec3(1.0));
     // gamma correction
     color = pow(color, vec3(1.0/2.2));  
-   
+    
     fColour = vec4(color, 1.0);
 }
 
@@ -118,8 +125,7 @@ vec3 calculatePBR(Light light, vec3 N, vec3 V, vec3 F0, int lightIndex)
     if(light.type == DIRECTIONAL_LIGHT) {
         // For directional light, L is just the negative of the light direction
         L = normalize(-light.direction);
-        // No attenuation for directional lights
-        attenuation = 1.0;
+        attenuation = lights[lightIndex].intensity;
     } 
     else if(light.type == POINT_LIGHT || light.type == SPOT_LIGHT) {
         // For point and spot lights, calculate direction to the light
@@ -128,7 +134,7 @@ vec3 calculatePBR(Light light, vec3 N, vec3 V, vec3 F0, int lightIndex)
         L = normalize(lightDir);
         
         // Calculate attenuation based on distance
-        attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * distance * distance);
+        attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * pow(distance, 2));
         
         // Additional spot light calculations
         if(light.type == SPOT_LIGHT) {
@@ -194,7 +200,7 @@ float DistributionGGX(vec3 N, vec3 H, float roughness)
     
     float num = a2;
     float denom = (NdotH2 * (a2 - 1.0) + 1.0);
-    denom = PI * denom * denom;
+    denom = PI * pow(denom, 2);
     
     return num / denom;
 }
@@ -202,7 +208,7 @@ float DistributionGGX(vec3 N, vec3 H, float roughness)
 float GeometrySchlickGGX(float NdotV, float roughness)
 {
     float r = (roughness + 1.0);
-    float k = (r * r) / 8.0;
+    float k = pow(r, 2) / 8.0;
 
     float num = NdotV;
     float denom = NdotV * (1.0 - k) + k;
@@ -249,20 +255,28 @@ float shadowOnFragment(vec4 fragPosLightSpace, int lightIndex)
 
     float closestDepth = texture(shadowMaps[lightIndex], projCoords.xy).r; 
     float currentDepth = projCoords.z;
-    float bias = 0.005;
     
+    // IMPORTANT: Get proper normal (use 'normal' variable which accounts for normal mapping)
+    // Use a MUCH smaller bias factor (0.001 instead of 0.05)
+    // And a MUCH smaller minimum bias (0.00025 instead of 0.005)
+    vec3 lightDir = normalize(lights[lightIndex].type == DIRECTIONAL_LIGHT ? 
+                             -lights[lightIndex].direction : 
+                             lights[lightIndex].position - FragPosWorldSpace);
+    float NdotL = max(dot(normalize(normal), lightDir), 0.0);
+    float bias = max(0.001 * (1.0 - NdotL), 0.005);
+    
+    // Reduce samples for better performance - try a plus pattern instead of full 3x3
     float shadow = 0.0;
     vec2 texelSize = 1.0 / textureSize(shadowMaps[lightIndex], 0);
-
-    // PCF filtering
-    for(int x = -1; x <= 1; ++x) {
-        for(int y = -1; y <= 1; ++y) {
-            float pcfDepth = texture(shadowMaps[lightIndex], projCoords.xy + vec2(x, y) * texelSize).r; 
-            shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;        
-        }    
-    }
     
-    return shadow / 9.0;
+    // Sample center plus the 4 adjacent texels (cross pattern)
+    shadow += currentDepth - bias > texture(shadowMaps[lightIndex], projCoords.xy).r ? 1.0 : 0.0;
+    shadow += currentDepth - bias > texture(shadowMaps[lightIndex], projCoords.xy + vec2(texelSize.x, 0)).r ? 1.0 : 0.0;
+    shadow += currentDepth - bias > texture(shadowMaps[lightIndex], projCoords.xy - vec2(texelSize.x, 0)).r ? 1.0 : 0.0;
+    shadow += currentDepth - bias > texture(shadowMaps[lightIndex], projCoords.xy + vec2(0, texelSize.y)).r ? 1.0 : 0.0;
+    shadow += currentDepth - bias > texture(shadowMaps[lightIndex], projCoords.xy - vec2(0, texelSize.y)).r ? 1.0 : 0.0;
+    
+    return shadow / 5.0;
 }
 
 // Updated to use lightIndex for shadow cube map texture
@@ -276,7 +290,7 @@ float shadowCubeMapOnFragment(Light light, int lightIndex)
     vec3 lightDir = normalize(fragToLight);
     float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.0005);
     
-    int samples = 20;
+    int samples = 10;
     float diskRadius = 0.05;
 
     vec3 sampleOffsetDirections[20] = vec3[]

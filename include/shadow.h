@@ -4,6 +4,7 @@
 
 struct ShadowStruct
 {
+	bool updateShadow = true;
 	unsigned int FBO;
 	unsigned int Texture;
 	int width;

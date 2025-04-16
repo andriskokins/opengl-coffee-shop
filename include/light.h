@@ -74,8 +74,8 @@ void addSpotLight(glm::vec3 direction, glm::vec3 position, glm::vec3 colour, flo
     spotLight.constant = 1.f;
     spotLight.linear = 0.09f;
     spotLight.quadratic = 0.032f;
-    spotLight.cutOff = glm::cos(glm::radians(15.0f));
-    spotLight.outerCutOff = glm::cos(glm::radians(25.0f));
+    spotLight.cutOff = glm::cos(glm::radians(25.0f));
+    spotLight.outerCutOff = glm::cos(glm::radians(45.0f));
     spotLight.shadow = setup_shadowmap(SH_MAP_WIDTH, SH_MAP_HEIGHT);
 
     lights.push_back(spotLight);
@@ -103,4 +103,9 @@ void addSpotLight(glm::vec3 direction, glm::vec3 position, glm::vec3 colour, flo
 std::vector<Light> getLights()
 {
     return lights;
+}
+
+glm::vec3 rgb2vec(int r, int g, int b)
+{
+    return glm::vec3((float) r / 255.f, (float)g / 255.f, (float)b / 255.f);
 }

@@ -15,60 +15,62 @@
 #include "shadow.h"
 #include "texture.h"
 #include "light.h"
+#include "model.h"
+#include "object_parser.h"
 
 SCamera Camera;
 
-// Each vertex now includes: position (3), color (3), normal (3), and texcoords (2)
-float vertices[] =
+// Each vertex includes: position (3), color (3), normal (3), and texcoords (2)
+std::vector<float> cube_vertices =
 {
     // back face
-    // pos                // col           // normal          // texcoords
-    -0.5f, -0.5f, -0.5f,  1.f, 1.f, 1.f,    0.f, 0.f, -1.f,    0.0f, 0.0f,
-     0.5f, -0.5f, -0.5f,  1.f, 1.f, 1.f,    0.f, 0.f, -1.f,    1.0f, 0.0f,
-     0.5f,  0.5f, -0.5f,  1.f, 1.f, 1.f,    0.f, 0.f, -1.f,    1.0f, 1.0f,
-     0.5f,  0.5f, -0.5f,  1.f, 1.f, 1.f,    0.f, 0.f, -1.f,    1.0f, 1.0f,
-    -0.5f,  0.5f, -0.5f,  1.f, 1.f, 1.f,    0.f, 0.f, -1.f,    0.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f,  1.f, 1.f, 1.f,    0.f, 0.f, -1.f,    0.0f, 0.0f,
+    // pos                // col                // normal          // texcoords
+    -0.5f, -0.5f, -0.5f,  1.f, 1.f, 1.f,   0.f, 0.f, -1.f,    0.0f, 0.0f,
+     0.5f, -0.5f, -0.5f,  1.f, 1.f, 1.f,   0.f, 0.f, -1.f,    1.0f, 0.0f,
+     0.5f,  0.5f, -0.5f,  1.f, 1.f, 1.f,   0.f, 0.f, -1.f,    1.0f, 1.0f,
+     0.5f,  0.5f, -0.5f,  1.f, 1.f, 1.f,   0.f, 0.f, -1.f,    1.0f, 1.0f,
+    -0.5f,  0.5f, -0.5f,  1.f, 1.f, 1.f,   0.f, 0.f, -1.f,    0.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,  1.f, 1.f, 1.f,   0.f, 0.f, -1.f,    0.0f, 0.0f,
 
     // front face
-    -0.5f, -0.5f,  0.5f,  1.f, 1.f, 1.f,    0.f, 0.f, 1.f,     0.0f, 0.0f,
-     0.5f, -0.5f,  0.5f,  1.f, 1.f, 1.f,    0.f, 0.f, 1.f,     1.0f, 0.0f,
-     0.5f,  0.5f,  0.5f,  1.f, 1.f, 1.f,    0.f, 0.f, 1.f,     1.0f, 1.0f,
-     0.5f,  0.5f,  0.5f,  1.f, 1.f, 1.f,    0.f, 0.f, 1.f,     1.0f, 1.0f,
-    -0.5f,  0.5f,  0.5f,  1.f, 1.f, 1.f,    0.f, 0.f, 1.f,     0.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f,  1.f, 1.f, 1.f,    0.f, 0.f, 1.f,     0.0f, 0.0f,
+    -0.5f, -0.5f,  0.5f,  1.f, 1.f, 1.f,   0.f, 0.f, 1.f,     0.0f, 0.0f,
+     0.5f, -0.5f,  0.5f,  1.f, 1.f, 1.f,   0.f, 0.f, 1.f,     1.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  1.f, 1.f, 1.f,   0.f, 0.f, 1.f,     1.0f, 1.0f,
+     0.5f,  0.5f,  0.5f,  1.f, 1.f, 1.f,   0.f, 0.f, 1.f,     1.0f, 1.0f,
+    -0.5f,  0.5f,  0.5f,  1.f, 1.f, 1.f,   0.f, 0.f, 1.f,     0.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f,  1.f, 1.f, 1.f,   0.f, 0.f, 1.f,     0.0f, 0.0f,
 
     // left face
-    -0.5f,  0.5f,  0.5f,  1.f, 1.f, 1.f,   -1.f, 0.f, 0.f,     0.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f,  1.f, 1.f, 1.f,   -1.f, 0.f, 0.f,     1.0f, 0.0f,
-    -0.5f, -0.5f, -0.5f,  1.f, 1.f, 1.f,   -1.f, 0.f, 0.f,     1.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f,  1.f, 1.f, 1.f,   -1.f, 0.f, 0.f,     1.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f,  1.f, 1.f, 1.f,   -1.f, 0.f, 0.f,     0.0f, 1.0f,
-    -0.5f,  0.5f,  0.5f,  1.f, 1.f, 1.f,   -1.f, 0.f, 0.f,     0.0f, 0.0f,
+    -0.5f,  0.5f,  0.5f,  1.f, 1.f, 1.f,  -1.f, 0.f, 0.f,     0.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f,  1.f, 1.f, 1.f,  -1.f, 0.f, 0.f,     1.0f, 0.0f,
+    -0.5f, -0.5f, -0.5f,  1.f, 1.f, 1.f,  -1.f, 0.f, 0.f,     1.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,  1.f, 1.f, 1.f,  -1.f, 0.f, 0.f,     1.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f,  1.f, 1.f, 1.f,  -1.f, 0.f, 0.f,     0.0f, 1.0f,
+    -0.5f,  0.5f,  0.5f,  1.f, 1.f, 1.f,  -1.f, 0.f, 0.f,     0.0f, 0.0f,
 
     // right face
-     0.5f,  0.5f,  0.5f,  1.f, 1.f, 1.f,    1.f, 0.f, 0.f,     0.0f, 0.0f,
-     0.5f,  0.5f, -0.5f,  1.f, 1.f, 1.f,    1.f, 0.f, 0.f,     1.0f, 0.0f,
-     0.5f, -0.5f, -0.5f,  1.f, 1.f, 1.f,    1.f, 0.f, 0.f,     1.0f, 1.0f,
-     0.5f, -0.5f, -0.5f,  1.f, 1.f, 1.f,    1.f, 0.f, 0.f,     1.0f, 1.0f,
-     0.5f, -0.5f,  0.5f,  1.f, 1.f, 1.f,    1.f, 0.f, 0.f,     0.0f, 1.0f,
-     0.5f,  0.5f,  0.5f,  1.f, 1.f, 1.f,    1.f, 0.f, 0.f,     0.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  1.f, 1.f, 1.f,  1.f, 0.f, 0.f,     0.0f, 0.0f,
+     0.5f,  0.5f, -0.5f,  1.f, 1.f, 1.f,  1.f, 0.f, 0.f,     1.0f, 0.0f,
+     0.5f, -0.5f, -0.5f,  1.f, 1.f, 1.f,  1.f, 0.f, 0.f,     1.0f, 1.0f,
+     0.5f, -0.5f, -0.5f,  1.f, 1.f, 1.f,  1.f, 0.f, 0.f,     1.0f, 1.0f,
+     0.5f, -0.5f,  0.5f,  1.f, 1.f, 1.f,  1.f, 0.f, 0.f,     0.0f, 1.0f,
+     0.5f,  0.5f,  0.5f,  1.f, 1.f, 1.f,  1.f, 0.f, 0.f,     0.0f, 0.0f,
 
      // bottom face
-     -0.5f, -0.5f, -0.5f,  1.f, 1.f, 1.f,    0.f, -1.f, 0.f,    0.0f, 0.0f,
-      0.5f, -0.5f, -0.5f,  1.f, 1.f, 1.f,    0.f, -1.f, 0.f,    1.0f, 0.0f,
-      0.5f, -0.5f,  0.5f,  1.f, 1.f, 1.f,    0.f, -1.f, 0.f,    1.0f, 1.0f,
-      0.5f, -0.5f,  0.5f,  1.f, 1.f, 1.f,    0.f, -1.f, 0.f,    1.0f, 1.0f,
-     -0.5f, -0.5f,  0.5f,  1.f, 1.f, 1.f,    0.f, -1.f, 0.f,    0.0f, 1.0f,
-     -0.5f, -0.5f, -0.5f,  1.f, 1.f, 1.f,    0.f, -1.f, 0.f,    0.0f, 0.0f,
+     -0.5f, -0.5f, -0.5f,  1.f, 1.f, 1.f,  0.f, -1.f, 0.f,    0.0f, 0.0f,
+      0.5f, -0.5f, -0.5f,  1.f, 1.f, 1.f,  0.f, -1.f, 0.f,    1.0f, 0.0f,
+      0.5f, -0.5f,  0.5f,  1.f, 1.f, 1.f,  0.f, -1.f, 0.f,    1.0f, 1.0f,
+      0.5f, -0.5f,  0.5f,  1.f, 1.f, 1.f,  0.f, -1.f, 0.f,    1.0f, 1.0f,
+     -0.5f, -0.5f,  0.5f,  1.f, 1.f, 1.f,  0.f, -1.f, 0.f,    0.0f, 1.0f,
+     -0.5f, -0.5f, -0.5f,  1.f, 1.f, 1.f,  0.f, -1.f, 0.f,    0.0f, 0.0f,
 
      // top face
-     -0.5f,  0.5f, -0.5f,  1.f, 1.f, 1.f,    0.f, 1.f, 0.f,     0.0f, 0.0f,
-      0.5f,  0.5f, -0.5f,  1.f, 1.f, 1.f,    0.f, 1.f, 0.f,     1.0f, 0.0f,
-      0.5f,  0.5f,  0.5f,  1.f, 1.f, 1.f,    0.f, 1.f, 0.f,     1.0f, 1.0f,
-      0.5f,  0.5f,  0.5f,  1.f, 1.f, 1.f,    0.f, 1.f, 0.f,     1.0f, 1.0f,
-     -0.5f,  0.5f,  0.5f,  1.f, 1.f, 1.f,    0.f, 1.f, 0.f,     0.0f, 1.0f,
-     -0.5f,  0.5f, -0.5f,  1.f, 1.f, 1.f,    0.f, 1.f, 0.f,     0.0f, 0.0f
+     -0.5f,  0.5f, -0.5f,  1.f, 1.f, 1.f,  0.f, 1.f, 0.f,     0.0f, 0.0f,
+      0.5f,  0.5f, -0.5f,  1.f, 1.f, 1.f,  0.f, 1.f, 0.f,     1.0f, 0.0f,
+      0.5f,  0.5f,  0.5f,  1.f, 1.f, 1.f,  0.f, 1.f, 0.f,     1.0f, 1.0f,
+      0.5f,  0.5f,  0.5f,  1.f, 1.f, 1.f,  0.f, 1.f, 0.f,     1.0f, 1.0f,
+     -0.5f,  0.5f,  0.5f,  1.f, 1.f, 1.f,  0.f, 1.f, 0.f,     0.0f, 1.0f,
+     -0.5f,  0.5f, -0.5f,  1.f, 1.f, 1.f,  0.f, 1.f, 0.f,     0.0f, 0.0f
 };
 
 GLuint albedo;
@@ -77,13 +79,14 @@ GLuint metallic;
 GLuint normal;
 GLuint roughness;
 
-#define NUM_BUFFERS 1
-#define NUM_VAOS 1
+#define NUM_BUFFERS 13
+#define NUM_VAOS 13
 GLuint Buffers[NUM_BUFFERS];
 GLuint VAOs[NUM_VAOS];
 
 #define WIDTH 1024
 #define HEIGHT 768
+
 
 struct State
 {
@@ -115,58 +118,75 @@ void updateLightUniforms(GLuint program) {
     }
 }
 
-void drawFloorAndCubes(unsigned int shaderProgram)
+void drawModels(unsigned int program)
 {
-    glBindVertexArray(VAOs[0]);
 
-    // Draw floor without textures
-    glm::mat4 model = glm::mat4(1.f);
-    model = glm::translate(model, glm::vec3(0, -3, 0));
-    model = glm::scale(model, glm::vec3(100, 0.1, 100));
-    glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
-
-    // Set useTexture to false for floor
-    glUniform1i(glGetUniformLocation(shaderProgram, "useTexture"), 0);
-    glDrawArrays(GL_TRIANGLES, 0, 36);
-
-    // Draw cubes with textures
-    for (int i = -1; i < 2; i++)
+    for (model obj : models)
     {
-        for (int j = -1; j < 2; j++)
+        glBindVertexArray(VAOs[obj.bufferIndex]);
+
+        // Enable texturing
+        //glUniform1i(glGetUniformLocation(program, "useTexture"), 1);
+        //glUniform1i(glGetUniformLocation(program, "useSingleTexture"), 1);
+
+        glUniform1f(glGetUniformLocation(program, "textureScale"), obj.textures.textureScale);
+
+        // Bind the texture to unit 0
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, obj.textures.albedo);
+        glUniform1i(glGetUniformLocation(program, "albedoMap"), 0);
+
+        // Bind roughness if available, otherwise use a default value
+        glActiveTexture(GL_TEXTURE1);
+        if (obj.textures.hasRoughness)
         {
-            for (int k = -1; k < 2; k++)
-            {
-                glm::mat4 model = glm::mat4(1.f);
-                model = glm::translate(model, glm::vec3(float(i * 2), float(j * 2), float(k * 2)));
-                glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
-
-                // Set useTexture to true for cubes
-                glUniform1i(glGetUniformLocation(shaderProgram, "useTexture"), 1);
-
-                // Activate texture units and bind textures accordingly.
-                glActiveTexture(GL_TEXTURE0);
-                glBindTexture(GL_TEXTURE_2D, albedo);
-                glUniform1i(glGetUniformLocation(shaderProgram, "albedoMap"), 0);
-
-                glActiveTexture(GL_TEXTURE1);
-                glBindTexture(GL_TEXTURE_2D, roughness);
-                glUniform1i(glGetUniformLocation(shaderProgram, "roughnessMap"), 1);
-
-                glActiveTexture(GL_TEXTURE2);
-                glBindTexture(GL_TEXTURE_2D, metallic);
-                glUniform1i(glGetUniformLocation(shaderProgram, "metallicMap"), 2);
-
-                glActiveTexture(GL_TEXTURE3);
-                glBindTexture(GL_TEXTURE_2D, normal);
-                glUniform1i(glGetUniformLocation(shaderProgram, "normalMap"), 3);
-
-                glActiveTexture(GL_TEXTURE4);
-                glBindTexture(GL_TEXTURE_2D, ao);
-                glUniform1i(glGetUniformLocation(shaderProgram, "aoMap"), 4);
-
-                glDrawArrays(GL_TRIANGLES, 0, 36);
-            }
+            glBindTexture(GL_TEXTURE_2D, obj.textures.roughness);
         }
+        else glBindTexture(GL_TEXTURE_2D, 0);
+        glUniform1i(glGetUniformLocation(program, "roughnessMap"), 1);
+
+        // Bind metallic if available, otherwise use a default value
+        glActiveTexture(GL_TEXTURE2);
+        if (obj.textures.hasMetallic)
+        {
+            glBindTexture(GL_TEXTURE_2D, obj.textures.metallic);
+        }
+        else glBindTexture(GL_TEXTURE_2D, 0);
+        glUniform1i(glGetUniformLocation(program, "metallicMap"), 2);
+
+        // Bind normal if available, otherwise use a default value
+        glActiveTexture(GL_TEXTURE3);
+        if (obj.textures.hasNormal)
+        {
+            glBindTexture(GL_TEXTURE_2D, obj.textures.normal);
+        }
+        else glBindTexture(GL_TEXTURE_2D, 0);
+        glUniform1i(glGetUniformLocation(program, "normalMap"), 3);
+
+        // Bind ao if available, otherwise use a default value
+        glActiveTexture(GL_TEXTURE4);
+        if (obj.textures.hasAO)
+        {
+            glBindTexture(GL_TEXTURE_2D, obj.textures.ao);
+        }
+        else glBindTexture(GL_TEXTURE_2D, 0);
+        glUniform1i(glGetUniformLocation(program, "aoMap"), 4);
+
+
+        glm::mat4 model = glm::mat4(1.f);
+        model = glm::translate(model, obj.position);
+        model = glm::rotate(model, glm::radians(obj.rotation.x), glm::vec3(1.f, 0.f, 0.f));
+        model = glm::rotate(model, glm::radians(obj.rotation.y), glm::vec3(0.f, 1.f, 0.f));
+        model = glm::rotate(model, glm::radians(obj.rotation.z), glm::vec3(0.f, 0.f, 1.f));
+        model = glm::scale(model, obj.scale);
+
+        // Set the model matrix uniform
+        glUniformMatrix4fv(glGetUniformLocation(program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+
+        // Draw the triangles
+        // position (3), color (3), normal (3), and texcoords (2) = 11 floats per vertex
+        // length of vertices divided by floats per vertex gives number of vertices per object
+        glDrawArrays(GL_TRIANGLES, 0, obj.vertices.size() / 11);
     }
 }
 
@@ -214,6 +234,7 @@ void processKeyboard(GLFWwindow* window, double deltaTime)
         std::cout << "Spotlight: " << (state->flashlightEnabled ? "ON" : "OFF") << std::endl;
         lights[0].direction = Camera.Front;
         lights[0].position = Camera.Position;
+        lights[0].shadow.updateShadow = true;
         //saveShadowMapToBitmap(lights[0].shadow.Texture, SH_MAP_WIDTH, SH_MAP_HEIGHT);
 
     }
@@ -232,11 +253,11 @@ void processKeyboard(GLFWwindow* window, double deltaTime)
 
     if (!state->noClipEnabled)
     {
-        Camera.Position.y = 0.f; // ground camera for first person effect
+        Camera.Position.y = 2.5f; // ground camera for first person effect
     }
     if (state->crouchEnabled)
     {
-        Camera.Position.y = -1.f;
+        Camera.Position.y /= 2;
         Camera.MovementSpeed /= 4; // crouch slows movement speed
     }
 
@@ -281,7 +302,7 @@ void generateDepthMap(unsigned int shadowShaderProgram, ShadowStruct shadow, glm
     glUseProgram(shadowShaderProgram);
     glUniformMatrix4fv(glGetUniformLocation(shadowShaderProgram, "LightSpaceMatrix"),
         1, GL_FALSE, glm::value_ptr(LightSpaceMatrix));
-    drawFloorAndCubes(shadowShaderProgram);
+    drawModels(shadowShaderProgram);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
@@ -311,7 +332,7 @@ void generateCubeMap(unsigned int shadowCubeMapProgram, ShadowStruct cubeMap, gl
     glUniform1f(glGetUniformLocation(shadowCubeMapProgram, "farPlane"), far_plane);
 
     // Draw the scene
-    drawFloorAndCubes(shadowCubeMapProgram);
+    drawModels(shadowCubeMapProgram);
 
     // Reset framebuffer
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -320,14 +341,15 @@ void generateCubeMap(unsigned int shadowCubeMapProgram, ShadowStruct cubeMap, gl
 void renderWithShadows(unsigned int renderShadowProgram, std::vector<glm::mat4> lightSpaceMatrices, std::vector<std::array<glm::mat4, 6>> transforms, State state)
 {
     glViewport(0, 0, WIDTH, HEIGHT);
-    static const GLfloat bgd[] = { 0.8f, 0.8f, 0.8f, 1.f };
+    static const GLfloat bgd[] = { 0.f, 0.f, 0.f, 1.f };
     glClearBufferfv(GL_COLOR, 0, bgd);
     glClear(GL_DEPTH_BUFFER_BIT);
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     glUseProgram(renderShadowProgram);
-    updateLightUniforms(renderShadowProgram);
+	updateLightUniforms(renderShadowProgram);
 
-    int posLightIndex = 0;
+    //int posLightIndex = 0;
 
     for (int i = 0; i < lights.size(); i++) {
         if (lights[i].type == DIRECTIONAL || lights[i].type == SPOT) {
@@ -335,23 +357,6 @@ void renderWithShadows(unsigned int renderShadowProgram, std::vector<glm::mat4> 
             glBindTexture(GL_TEXTURE_2D, lights[i].shadow.Texture);
             std::string uniformName = "shadowMaps[" + std::to_string(i) + "]";
             glUniform1i(glGetUniformLocation(renderShadowProgram, uniformName.c_str()), 5 + i);
-
-            // Calculate light space matrix - same as in your main loop
-            //glm::mat4 lightSpaceMatrix;
-            //if (lights[i].type == DIRECTIONAL) {
-            //    float near_plane = 1.f, far_plane = 70.f;
-            //    glm::mat4 lightProjection = glm::ortho(-10.f, 10.f, -10.f, 10.f, near_plane, far_plane);
-            //    glm::mat4 lightView = glm::lookAt(lights[i].position, lights[i].position + lights[i].direction, glm::vec3(0.f, 1.f, 0.f));
-            //    lightSpaceMatrix = lightProjection * lightView;
-            //}
-            //else { // SPOT
-            //    float near_plane = 1.f, far_plane = 70.f;
-            //    float lightCutoffRadians = acos(lights[i].outerCutOff);
-            //    float fov = glm::degrees(lightCutoffRadians * 2.0f);
-            //    glm::mat4 lightProjection = glm::perspective(glm::radians(fov), (float)SH_MAP_WIDTH / (float)SH_MAP_HEIGHT, near_plane, far_plane);
-            //    glm::mat4 lightView = glm::lookAt(lights[i].position, lights[i].position + lights[i].direction, glm::vec3(0.f, 1.f, 0.f));
-            //    lightSpaceMatrix = lightProjection * lightView;
-            //}
 
             // Pass the matrix to the shader
             std::string matrixUniformName = "lightSpaceMatrices[" + std::to_string(i) + "]";
@@ -361,17 +366,17 @@ void renderWithShadows(unsigned int renderShadowProgram, std::vector<glm::mat4> 
         else if (lights[i].type == POSITIONAL)
         {
             // Use texture unit 15 (or any safe starting point) + pointLightIndex
-            int textureUnit = 15 + posLightIndex;
+            int textureUnit = 15 + i;
             glActiveTexture(GL_TEXTURE0 + textureUnit);
             glBindTexture(GL_TEXTURE_CUBE_MAP, lights[i].shadow.Texture);
 
-            std::string uniformName = "shadowCubeMaps[" + std::to_string(posLightIndex) + "]";
+            std::string uniformName = "shadowCubeMaps[" + std::to_string(i) + "]";
             glUniform1i(glGetUniformLocation(renderShadowProgram, uniformName.c_str()), textureUnit);
 
             // Also pass the position to an array
-            std::string posUniformName = "pointLightPositions[" + std::to_string(posLightIndex) + "]";
+            std::string posUniformName = "pointLightPositions[" + std::to_string(i) + "]";
             glUniform3fv(glGetUniformLocation(renderShadowProgram, posUniformName.c_str()), 1, glm::value_ptr(lights[i].position));
-            ++posLightIndex;
+            //++posLightIndex;
         }
     }
 
@@ -387,7 +392,7 @@ void renderWithShadows(unsigned int renderShadowProgram, std::vector<glm::mat4> 
     glUniformMatrix4fv(glGetUniformLocation(renderShadowProgram, "projection"),
         1, GL_FALSE, glm::value_ptr(projection));
 
-    drawFloorAndCubes(renderShadowProgram);
+    drawModels(renderShadowProgram);
 }
 
 void mouseCallback(GLFWwindow* window, double xpos, double ypos)
@@ -421,6 +426,25 @@ void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
     printf("FOV: %0.f\n", state->FOV);
 }
 
+void initialiseBuffers(std::vector<float> vertices, int bufferIndex)
+{
+    glNamedBufferStorage(Buffers[bufferIndex], vertices.size() * sizeof(float), vertices.data(), 0);
+    glBindVertexArray(VAOs[bufferIndex]);
+    glBindBuffer(GL_ARRAY_BUFFER, Buffers[bufferIndex]);
+    // Position (3 floats)
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    // Colour (3 floats)
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+    // Normal (3 floats)
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+    // Texture (2 floats)
+    glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(9 * sizeof(float)));
+    glEnableVertexAttribArray(3);
+}
+
 int main(int argc, char** argv)
 {
     // Variables for FPS counter
@@ -433,32 +457,16 @@ int main(int argc, char** argv)
     double lastFrameTime = glfwGetTime();
     double frameTime;
 
+    // Store the calculated matrices here
     std::vector<glm::mat4> lightSpaceMatrices;
     std::vector<std::array<glm::mat4, 6>> cubeMapMatrices;
 
+    // Use state to store variables like FOV and booleans for crouch / flashlight
     State state;
 
     glfwInit();
 
-    // Create a temporary context to query max samples
-    {
-        // Create a temporary hidden window
-        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-        GLFWwindow* tempWindow = glfwCreateWindow(1, 1, "", NULL, NULL);
-        glfwMakeContextCurrent(tempWindow);
-
-        gl3wInit();
-
-        // Query maximum sample count
-        int max_antialiasing;
-        glGetIntegerv(GL_MAX_SAMPLES, &max_antialiasing);
-        printf("Max antialiasing supported: %d samples\n", max_antialiasing);
-
-        glfwDestroyWindow(tempWindow);
-
-        printf("Setting Antialiasing to: %d\n", max_antialiasing);
-        glfwWindowHint(GLFW_SAMPLES, max_antialiasing);
-    }
+    glfwWindowHint(GLFW_SAMPLES, 2);
 
     glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);  // Make window visible
     GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "", NULL, NULL);
@@ -477,50 +485,162 @@ int main(int argc, char** argv)
 
     for (int i = 0; i < 32; i++) {
         glActiveTexture(GL_TEXTURE0 + i);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+        glBindTexture(GL_TEXTURE_2D, 0);
     }
+
+	/////////////////////////////////////////////
+	// Initialising objects and their textures //
+	/////////////////////////////////////////////
+
+    // Model IDs
+    int table, chair, floor, counter_table, counter_top, wall, grinder, coffee_machine, shelf, coffee_bag, light_bulb, light_fixture;
+    // Models paths
+    std::string table_path = "../objects/table/", chair_path = "../objects/chair/", grinder_path = "../objects/grinder/", coffee_machine_path = "../objects/coffee_machine/",
+        shelf_path = "../objects/shelf/", coffee_bag_path = "../objects/coffee_bag/", light_bulb_path = "../objects/light/", light_fixture_path = "../objects/light2/";
+    // Texture paths
+    std::string floor_path = "../textures/floor/", counter_table_path = "../textures/oak-wood-bare-ue/", counter_top_path = "../textures/cloudy-veined-quartz-ue/",
+	brick_wall_path = "../textures/brick-wall-ue/";
+
+    table = load(table_path+"Round_table_low.obj",
+        table_path + "Wood_beech_toas_brown_Diffuse_2k.jpg",
+        table_path+"Wood_beech_toas_brown_Normal_2k.jpg",
+        table_path+"Wood_beech_toas_brown_Roughness_2k.jpg",
+        "",
+        table_path+"internal_ground_ao_texture.jpeg");
+    floor = addModel(cube_vertices, floor_path+"light-plank-flooring_albedo.png",
+        floor_path+"light-plank-flooring_normal-dx.png",
+        floor_path+"light-plank-flooring_roughness.png",
+        floor_path+"light-plank-flooring_metallic.png",
+        floor_path+"light-plank-flooring_metallic.png");
+    chair = load(chair_path + "Stool2_LP.obj",
+        chair_path + "Stool_2_Color.png",
+        chair_path+"Stool_2_Normal.png",
+        chair_path+"Stool_2_Roughness.png",
+        chair_path+"Stool_2_Metallic.png");
+    counter_table = addModel(cube_vertices, counter_table_path + "oak-wood-bare_albedo.png",
+        counter_table_path + "oak-wood-bare_normal-dx.png",
+        counter_table_path + "oak-wood-bare_roughness.png",
+        counter_table_path + "oak-wood-bare_metallic.png",
+        counter_table_path + "oak-wood-bare_ao.png");
+    counter_top = addModel(cube_vertices, counter_top_path + "cloudy-veined-quartz_albedo.png",
+        counter_top_path + "cloudy-veined-quartz_normal-dx.png",
+        counter_top_path + "cloudy-veined-quartz_roughness.png",
+        counter_top_path + "cloudy-veined-quartz_metallic.png",
+        counter_top_path + "cloudy-veined-quartz_ao.png");
+    wall = addModel(cube_vertices, brick_wall_path + "brick-wall_albedo.png",
+        brick_wall_path + "brick-wall_normal-dx.png",
+        brick_wall_path + "brick-wall_normal-dx.png",
+        brick_wall_path + "brick-wall_metallic.png",
+        brick_wall_path + "brick-wall_ao.png");
+    grinder = load(grinder_path + "grinder.obj",
+        grinder_path + "Grinder-color.png",
+        grinder_path + "Grinder-normal.png",
+        grinder_path+"Grinder-roughness.png",
+        grinder_path+"Grinder-metal.png",
+        "",
+        grinder_path+"Grinder-opacity.jpeg");
+    coffee_machine = load(coffee_machine_path + "coffee_machine.obj",
+        coffee_machine_path + "Coffee-Machine-Color.png",
+        coffee_machine_path + "Coffee-Machine-Normal2.png",
+        coffee_machine_path + "Coffee-Machine-Roughness.png",
+        coffee_machine_path + "Coffee-Machine-Metal1.png",
+        "", coffee_machine_path + "Coffee-Machine-Opacity.jpg");
+    shelf = load(shelf_path + "single_wood_shelf.obj",
+        shelf_path + "T_shelf.002.png", "", "",
+        shelf_path + "metalnessMap1.png","");
+    coffee_bag = load(coffee_bag_path + "Coffee_Paper_Bag..obj",
+        coffee_bag_path + "initialShadingGroup_BaseColor.1001.png",
+        coffee_bag_path + "initialShadingGroup_Normal.1001.png",
+        coffee_bag_path + "initialShadingGroup_Roughness.1001.png",
+        coffee_bag_path + "initialShadingGroup_Metalness.1001.png");
+    light_bulb = load(light_bulb_path + "simple_ceiling_light.obj", 
+        light_bulb_path+"simple_ceiling_light_intake_diffuse.png");
+    light_fixture = load(light_fixture_path + "LightFixtureRecessed.obj",
+        light_fixture_path + "DefaultMaterial_BaseColor.jpg",
+        light_fixture_path + "DefaultMaterial_Normal.png",
+        light_fixture_path + "DefaultMaterial_Roughness.jpg",
+        light_fixture_path + "DefaultMaterial_Metallic.jpg");
+
+    models.at(floor).textures.textureScale = 12.f;
+    models.at(counter_top).textures.textureScale = 4.f;
+    models.at(wall).textures.textureScale = 4.f;
+
+    setTranformations(table, glm::vec3(5, 0, 0), glm::vec3(0), glm::vec3(0.0225f));
+    setTranformations(chair, glm::vec3(7, 0, 0), glm::vec3(0, -90.f, 0), glm::vec3(0.002));
+    setTranformations(floor, glm::vec3(0), glm::vec3(0), glm::vec3(100, 0.01, 100));
+    setTranformations(counter_table, glm::vec3(0), glm::vec3(0), glm::vec3(1.5, 3, 10));
+    setTranformations(counter_top, glm::vec3(0, 1.5, -0.37), glm::vec3(0), glm::vec3(1.75, 0.05, 11));
+    setTranformations(coffee_machine, glm::vec3(0, 1.5f, -2.5), glm::vec3(0, -90.f, 0), glm::vec3(0.005));
+    setTranformations(wall, glm::vec3(-8, 0, 0), glm::vec3(0), glm::vec3(0.1, 12, 15));
+    setTranformations(grinder, glm::vec3(-2, 1.85, -5), glm::vec3(0), glm::vec3(0.0035));
+    setTranformations(shelf, glm::vec3(-7.95, 3.5, 0), glm::vec3(0, 90.f, 0), glm::vec3(1.5));
+    setTranformations(coffee_bag, glm::vec3(-7.8, 3.52, 0), glm::vec3(0, 90.f, 0), glm::vec3(0.03));
+    setTranformations(light_bulb, glm::vec3(5, 7, 0), glm::vec3(0), glm::vec3(0.02f));
+    setTranformations(light_fixture, glm::vec3(0, 7.f, -2.5), glm::vec3(0), glm::vec3(0.01));
+
 
     // Initialise the lights shadow maps
     //lights[0].position = glm::vec3(2.f, 6.f, 7.f);
-    //addDirectionalLight(glm::normalize(glm::vec3(0.2f, -1.0f, -0.3f)), glm::vec3(1), 1.f);
-    //addSpotLight(glm::vec3(0, -1, 0.5), glm::vec3(0, 7, -10), GREEN, 5.f);
-    //addSpotLight(glm::vec3(0, -1, 0.5), glm::vec3(0, 7, -10), RED, 5.f);
-    addPositionalLight(glm::vec3(5, 0, 0), RED, 1.f);
-    addPositionalLight(glm::vec3(-5, 0, 0), BLUE, 1.f);
-    addPositionalLight(glm::vec3(0, 0, -5), GREEN, 1.f);
+    addDirectionalLight(glm::normalize(glm::vec3(0, -1.0f, -0.3f)), glm::vec3(1), 0.05f);
+    addSpotLight(glm::vec3(0, -1, 0), glm::vec3(0, 6.95f, -2.5), rgb2vec(247, 179, 134), 0.75f);
+    addSpotLight(glm::vec3(0, -1, 0), glm::vec3(0, 6.95f, 5), rgb2vec(210, 230, 255), 0.75f);
+    addPositionalLight(glm::vec3(5, 6, 0), rgb2vec(255,223,142) , 1.f);
+    //addPositionalLight(glm::vec3(-5, 0, 0), BLUE, 1.f);
+    //addPositionalLight(glm::vec3(0, 0, -5), GREEN, 1.f);
     // Reserve memory for each light
     cubeMapMatrices.reserve(lights.size());
     lightSpaceMatrices.reserve(lights.size());
+    printf("Lights size: %d\n", lights.size());
 
 
     GLuint program = CompileShader("pbr.vert", "pbr.frag");
     GLuint shadow_program = CompileShader("shadow.vert", "shadow.frag");
     GLuint shadow_cubemap_program = CompileShader("shadowCubeMap.vert", "shadowCubeMap.frag", "shadowCubeMap.geom");
 
-    // Load pbr textures
-    albedo = setup_texture("textures/ocean-rock_albedo.png");
-    metallic = setup_texture("textures/ocean-rock_metallic.png");
-    normal = setup_texture("textures/ocean-rock_normal-dx.png");
-    roughness = setup_texture("textures/ocean-rock_roughness.png");
-    ao = setup_texture("textures/ocean-rock_ao.png");
-
     InitCamera(Camera);
 
     glCreateBuffers(NUM_BUFFERS, Buffers);
-    glNamedBufferStorage(Buffers[0], sizeof(vertices), vertices, 0);
     glGenVertexArrays(NUM_VAOS, VAOs);
-    glBindVertexArray(VAOs[0]);
-    glBindBuffer(GL_ARRAY_BUFFER, Buffers[0]);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, (11 * sizeof(float)), (void*)0);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, (11 * sizeof(float)), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, (11 * sizeof(float)), (void*)(6 * sizeof(float)));
-    glEnableVertexAttribArray(2);
-    glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, (11 * sizeof(float)), (void*)(9 * sizeof(float)));
-    glEnableVertexAttribArray(3);
+
+    // Initialising buffers
+    initialiseBuffers(models.at(table).vertices, models.at(table).bufferIndex);
+    initialiseBuffers(models.at(chair).vertices, models.at(chair).bufferIndex);
+    initialiseBuffers(models.at(floor).vertices, models.at(floor).bufferIndex);
+    initialiseBuffers(models.at(counter_table).vertices, models.at(counter_table).bufferIndex);
+    initialiseBuffers(models.at(counter_top).vertices, models.at(counter_top).bufferIndex);
+    initialiseBuffers(models.at(wall).vertices, models.at(wall).bufferIndex);
+    initialiseBuffers(models.at(grinder).vertices, models.at(grinder).bufferIndex);
+    initialiseBuffers(models.at(coffee_machine).vertices, models.at(coffee_machine).bufferIndex);
+    initialiseBuffers(models.at(shelf).vertices, models.at(shelf).bufferIndex);
+    initialiseBuffers(models.at(coffee_bag).vertices, models.at(coffee_bag).bufferIndex);
+    initialiseBuffers(models.at(light_bulb).vertices, models.at(light_bulb).bufferIndex);
+    initialiseBuffers(models.at(light_fixture).vertices, models.at(light_fixture).bufferIndex);
+
+
+    int duplicateID;
+	duplicateID = duplicateModel(chair);
+    setTranformations(duplicateID, glm::vec3(3, 0, 0), glm::vec3(0, 90.f, 0), glm::vec3(0.002));
+    duplicateID = duplicateModel(counter_table);
+    setTranformations(duplicateID, glm::vec3(-2.25, 0, -5), glm::vec3(0, -90.f, 0), glm::vec3(1.5, 3, 6));
+    duplicateID = duplicateModel(counter_top);
+    setTranformations(duplicateID, glm::vec3(-3.125, 1.5, -5), glm::vec3(0, -90.f, 0), glm::vec3(1.75, 0.05, 4.5));
+    duplicateID = duplicateModel(shelf);
+    setTranformations(duplicateID, glm::vec3(-7.95, 3.5, 5), glm::vec3(0, 90.f, 0), glm::vec3(1.5));
+    duplicateID = duplicateModel(shelf);
+    setTranformations(duplicateID, glm::vec3(-7.95, 3.5, -5), glm::vec3(0, 90.f, 0), glm::vec3(1.5));
+    duplicateID = duplicateModel(coffee_bag);
+    setTranformations(duplicateID, glm::vec3(-7.8, 3.52, 0.5), glm::vec3(0, 115.f, 0), glm::vec3(0.03));
+    duplicateID = duplicateModel(coffee_bag);
+    setTranformations(duplicateID, glm::vec3(-7.8, 3.52, 5), glm::vec3(0, 85.f, 0), glm::vec3(0.03));
+    duplicateID = duplicateModel(coffee_bag);
+    setTranformations(duplicateID, glm::vec3(-7.65, 3.52, -5), glm::vec3(0), glm::vec3(0.03));
+    duplicateID = duplicateModel(light_fixture);
+    setTranformations(duplicateID, glm::vec3(0, 7.f, 5), glm::vec3(0), glm::vec3(0.01));
 
     glEnable(GL_DEPTH_TEST);
+    // Resize the vector to match the number of lights
+    lightSpaceMatrices.resize(lights.size());
+    cubeMapMatrices.resize(lights.size());
 
     while (!glfwWindowShouldClose(window))
     {
@@ -554,60 +674,55 @@ int main(int argc, char** argv)
         // Process keyboard input
         processKeyboard(window, frameTime);
 
-        // Resize the vector to match the number of lights
-        lightSpaceMatrices.resize(lights.size());
-        cubeMapMatrices.resize(lights.size());
-        int posLightIndex = 0;
+        //int posLightIndex = 0;
 
         // Generate a depth map for each light
         for (int i = 0; i < lights.size(); i++)
         {
-            // Directional light depth map (orthogonal projection)
-	        if (lights[i].type == DIRECTIONAL)
+            // Check if shadow map needs updating i.e. after light has moved
+            if (lights[i].shadow.updateShadow)
 	        {
-                float near_plane = 1.f, far_plane = 70.f;
-                glm::mat4 lightProjection = glm::ortho(-10.f, 10.f, -10.f, 10.f, near_plane, far_plane);
-                glm::mat4 lightView = glm::lookAt(lights[i].position, lights[i].position + lights[i].direction, glm::vec3(0.f, 1.f, 0.f));
-                lightSpaceMatrices[i] = lightProjection * lightView;
-                generateDepthMap(shadow_program, lights[i].shadow, lightSpaceMatrices[i]);
-            }
-            // Spot light depth map (perspective projection)
-            else if (lights[i].type == SPOT)
-            {
-                float near_plane = 1.f, far_plane = 70.f;
-                float lightCutoffRadians = acos(lights[i].outerCutOff);
-                float fov = glm::degrees(lightCutoffRadians * 2.0f);
-                glm::mat4 lightProjection = glm::perspective(glm::radians(fov), (float)SH_MAP_WIDTH / (float)SH_MAP_HEIGHT, near_plane, far_plane);
-                glm::mat4 lightView = glm::lookAt(lights[i].position, lights[i].position + lights[i].direction, glm::vec3(0.f, 1.f, 0.f));
-                lightSpaceMatrices[i] = lightProjection * lightView;
-                generateDepthMap(shadow_program, lights[i].shadow, lightSpaceMatrices[i]);
-            }
-            else if (lights[i].type == POSITIONAL)
-            {
-                // Create shadow transforms for this light
-                float far_plane = 25.0f; float near_plane = 1.0f;
-                glm::mat4 shadowProj = glm::perspective(glm::radians(90.f), 1.f, near_plane, far_plane);
+		        // Directional light depth map (orthogonal projection)
+	        	if (lights[i].type == DIRECTIONAL)
+	        	{
+	        		float near_plane = 1.f, far_plane = 70.f;
+	        		glm::mat4 lightProjection = glm::ortho(-10.f, 10.f, -10.f, 10.f, near_plane, far_plane);
+	        		glm::mat4 lightView = glm::lookAt(lights[i].position, lights[i].position + lights[i].direction, glm::vec3(0.f, 1.f, 0.f));
+	        		lightSpaceMatrices[i] = lightProjection * lightView;
+	        		generateDepthMap(shadow_program, lights[i].shadow, lightSpaceMatrices[i]);
+	        	}
+	        	// Spot light depth map (perspective projection)
+	        	else if (lights[i].type == SPOT)
+	        	{
+	        		float near_plane = 1.f, far_plane = 70.f;
+	        		float lightCutoffRadians = acos(lights[i].outerCutOff);
+	        		float fov = glm::degrees(lightCutoffRadians * 2.0f);
+	        		glm::mat4 lightProjection = glm::perspective(glm::radians(fov), (float)SH_MAP_WIDTH / (float)SH_MAP_HEIGHT, near_plane, far_plane);
+	        		glm::mat4 lightView = glm::lookAt(lights[i].position, lights[i].position + lights[i].direction, glm::vec3(0.f, 1.f, 0.f));
+	        		lightSpaceMatrices[i] = lightProjection * lightView;
+	        		generateDepthMap(shadow_program, lights[i].shadow, lightSpaceMatrices[i]);
+	        	}
+	        	else if (lights[i].type == POSITIONAL)
+	        	{
+	        		// Create shadow transforms for this light
+	        		float far_plane = 25.0f; float near_plane = 1.0f;
+	        		glm::mat4 shadowProj = glm::perspective(glm::radians(90.f), 1.f, near_plane, far_plane);
 
-                cubeMapMatrices[posLightIndex][0] = shadowProj * glm::lookAt(lights[i].position, lights[i].position + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f));
-                cubeMapMatrices[posLightIndex][1] = shadowProj * glm::lookAt(lights[i].position, lights[i].position + glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f));
-                cubeMapMatrices[posLightIndex][2] = shadowProj * glm::lookAt(lights[i].position, lights[i].position + glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-                cubeMapMatrices[posLightIndex][3] = shadowProj * glm::lookAt(lights[i].position, lights[i].position + glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
-                cubeMapMatrices[posLightIndex][4] = shadowProj * glm::lookAt(lights[i].position, lights[i].position + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f));
-                cubeMapMatrices[posLightIndex][5] = shadowProj * glm::lookAt(lights[i].position, lights[i].position + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f));
-                // Generate cubemap for this positional light
-                generateCubeMap(shadow_cubemap_program, lights[i].shadow, cubeMapMatrices[posLightIndex].data(), far_plane, i);
-                ++posLightIndex;
-            }
+	        		cubeMapMatrices[i][0] = shadowProj * glm::lookAt(lights[i].position, lights[i].position + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f));
+	        		cubeMapMatrices[i][1] = shadowProj * glm::lookAt(lights[i].position, lights[i].position + glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f));
+	        		cubeMapMatrices[i][2] = shadowProj * glm::lookAt(lights[i].position, lights[i].position + glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	        		cubeMapMatrices[i][3] = shadowProj * glm::lookAt(lights[i].position, lights[i].position + glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
+	        		cubeMapMatrices[i][4] = shadowProj * glm::lookAt(lights[i].position, lights[i].position + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f));
+	        		cubeMapMatrices[i][5] = shadowProj * glm::lookAt(lights[i].position, lights[i].position + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f));
+	        		// Generate cubemap for this positional light
+	        		generateCubeMap(shadow_cubemap_program, lights[i].shadow, cubeMapMatrices[i].data(), far_plane, i);
+	        		//++posLightIndex;
+	        	}
+                lights[i].shadow.updateShadow = false; // Stop the shadow map updating every 
+	        }
         }
 
         renderWithShadows(program, lightSpaceMatrices, cubeMapMatrices, state);
-
-        // Positional Light Shadow
-        //renderWithShadow(program, cubemap, far_plane, state);
-
-        //saveShadowMapToBitmap(shadow.Texture, SH_MAP_WIDTH, SH_MAP_HEIGHT);
-
-        //renderWithShadow(program, spot_lightSpaceMatrix);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
