@@ -147,8 +147,8 @@
     <ClInclude Include="..\..\include\stb_image.h" />
     <ClInclude Include="..\..\include\texture.h" />
     <ClInclude Include="..\..\include\tiny_obj_loader.h" />
-    <ClInclude Include="collision.h" />
-    <ClInclude Include="model.h" />
+    <ClInclude Include="include\collision.h" />
+    <ClInclude Include="include\model.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="pbr.frag" />

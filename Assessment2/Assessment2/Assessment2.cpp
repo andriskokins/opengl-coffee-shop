@@ -9,14 +9,14 @@
 #include <array>
 
 #include "camera.h"
-#include "collision.h"
+#include "include/collision.h"
 #include "error.h"
 #include "file.h"
 #include "shader.h"
 #include "shadow.h"
 #include "texture.h"
 #include "light.h"
-#include "model.h"
+#include "include/model.h"
 #include "object_parser.h"
 
 SCamera Camera;

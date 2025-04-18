@@ -56,10 +56,10 @@
     <ClInclude Include="..\..\include\tiny_obj_loader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="model.h">
+    <ClInclude Include="include\model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="collision.h">
+    <ClInclude Include="include\collision.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
