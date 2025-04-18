@@ -1,7 +1,17 @@
 #pragma once
 #include <vector>
 #include <GL/glcorearb.h>
+#include <limits>
+#include <glm/glm.hpp>
+
 #include "object_parser.h"
+#include "texture.h"
+
+struct AABB
+{
+    glm::vec3 min = glm::vec3(std::numeric_limits<float>::max());
+    glm::vec3 max = glm::vec3(std::numeric_limits<float>::lowest());
+};
 
 struct PBRTextures {
     GLuint albedo = 0;  // (diffuse)
@@ -36,8 +46,10 @@ struct model
 
     // Textures
     PBRTextures textures;
+
+    // axis aligned bounding box - AABB
+    AABB aabb;
 };
- 
 std::vector<model> models;
 
 /**

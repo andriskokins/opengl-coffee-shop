@@ -147,6 +147,7 @@
     <ClInclude Include="..\..\include\stb_image.h" />
     <ClInclude Include="..\..\include\texture.h" />
     <ClInclude Include="..\..\include\tiny_obj_loader.h" />
+    <ClInclude Include="collision.h" />
     <ClInclude Include="model.h" />
   </ItemGroup>
   <ItemGroup>
@@ -157,25 +158,6 @@
     <None Include="shadowCubeMap.frag" />
     <None Include="shadowCubeMap.geom" />
     <None Include="shadowCubeMap.vert" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="..\..\..\COMP3011 - Graphics\self study 9\self study 9\objs\earth\map.jpg" />
-    <Image Include="..\objects\generic-town-bus\df.png" />
-    <Image Include="..\textures\ocean-rock_albedo.png" />
-    <Image Include="..\textures\ocean-rock_ao.png" />
-    <Image Include="..\textures\ocean-rock_height.png" />
-    <Image Include="..\textures\ocean-rock_metallic.png" />
-    <Image Include="..\textures\ocean-rock_normal-dx.png" />
-    <Image Include="..\textures\ocean-rock_preview.jpg" />
-    <Image Include="..\textures\ocean-rock_roughness.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Object Include="..\objects\earth\earth.obj">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-    </Object>
-    <Object Include="..\objects\generic-town-bus\bus.obj">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-    </Object>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -10,20 +10,12 @@ const int SPOT_LIGHT = 2;
 
 // Light structure
 struct Light {
+    bool isOn;
     int type;               // 0=directional, 1=point, 2=spot
     vec3 position;          // Used for point and spot lights
     vec3 direction;         // Used for directional and spot lights
-    vec3 colour;             // Light color
+    vec3 colour;            // Light color
     float intensity;        // Light intensity multiplier
-    
-    // Attenuation factors (for point and spot lights)
-    float constant;
-    float linear;
-    float quadratic;
-    
-    // Spot light properties
-    float cutOff;           // Inner cone angle (cosine)
-    float outerCutOff;      // Outer cone angle (cosine)
 };
 
 // Uniforms for lights
@@ -119,8 +111,14 @@ void main()
 
 vec3 calculatePBR(Light light, vec3 N, vec3 V, vec3 F0, int lightIndex)
 {
+    if (!(light.isOn))
+        return vec3(0);
+
     vec3 L;
     float attenuation = 1.0;
+    float constant = 1.0, linear = 0.09, quadratic = 0.032, cutOff, outerCutOff;
+    cutOff = cos(radians(25.f));
+    outerCutOff = cos(radians(45.f));
     
     if(light.type == DIRECTIONAL_LIGHT) {
         // For directional light, L is just the negative of the light direction
@@ -134,13 +132,13 @@ vec3 calculatePBR(Light light, vec3 N, vec3 V, vec3 F0, int lightIndex)
         L = normalize(lightDir);
         
         // Calculate attenuation based on distance
-        attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * pow(distance, 2));
+        attenuation = 1.0 / (constant + linear * distance + quadratic * pow(distance, 2));
         
         // Additional spot light calculations
         if(light.type == SPOT_LIGHT) {
             float theta = dot(L, normalize(-light.direction));
-            float epsilon = light.cutOff - light.outerCutOff;
-            float spotIntensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
+            float epsilon = cutOff - outerCutOff;
+            float spotIntensity = clamp((theta - outerCutOff) / epsilon, 0.0, 1.0);
             attenuation *= spotIntensity;
         }
     }

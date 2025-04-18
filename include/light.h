@@ -19,16 +19,12 @@ enum LightType {
 };
 
 struct Light {
+    bool isOn = TRUE;
     int type;
     glm::vec3 position = glm::vec3(0);
     glm::vec3 direction = glm::vec3(0);
     glm::vec3 colour = glm::vec3(1);
     float intensity = 1.f;
-    float constant = 1.f;
-    float linear = 0.f;
-    float quadratic = 0.f;
-    float cutOff = 0.f;
-    float outerCutOff = 0.f;
     ShadowStruct shadow;
 };
 
@@ -54,9 +50,6 @@ void addPositionalLight(glm::vec3 position, glm::vec3 colour, float intensity)
     positionalLight.position = position;
     positionalLight.colour = colour;
     positionalLight.intensity = intensity;
-    positionalLight.constant = 1.f;
-    positionalLight.linear = 0.09f;
-    positionalLight.quadratic = 0.032f;
     positionalLight.shadow = setup_shadow_cubemap(SH_MAP_WIDTH, SH_MAP_HEIGHT);
 
     lights.push_back(positionalLight);
@@ -71,11 +64,6 @@ void addSpotLight(glm::vec3 direction, glm::vec3 position, glm::vec3 colour, flo
     spotLight.position = position;
     spotLight.colour = colour;
     spotLight.intensity = intensity;
-    spotLight.constant = 1.f;
-    spotLight.linear = 0.09f;
-    spotLight.quadratic = 0.032f;
-    spotLight.cutOff = glm::cos(glm::radians(25.0f));
-    spotLight.outerCutOff = glm::cos(glm::radians(45.0f));
     spotLight.shadow = setup_shadowmap(SH_MAP_WIDTH, SH_MAP_HEIGHT);
 
     lights.push_back(spotLight);

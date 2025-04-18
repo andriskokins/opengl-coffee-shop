@@ -13,18 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Resource Files\textures">
-      <UniqueIdentifier>{c863e01d-03f3-41bf-96ea-461a3620f413}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resource Files\objects">
-      <UniqueIdentifier>{f2e71880-3635-42b1-8628-a9a8b255b868}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resource Files\objects\bus">
-      <UniqueIdentifier>{65e747cb-a6e7-4b74-af3c-b94b0ff103b2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resource Files\objects\earth">
-      <UniqueIdentifier>{4c20c3ba-6e15-4a66-9646-ba6cd8f6d29d}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Assessment2.cpp">
@@ -71,6 +59,9 @@
     <ClInclude Include="model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="collision.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="pbr.frag">
@@ -94,42 +85,5 @@
     <None Include="shadowCubeMap.vert">
       <Filter>Source Files</Filter>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="..\textures\ocean-rock_albedo.png">
-      <Filter>Resource Files\textures</Filter>
-    </Image>
-    <Image Include="..\textures\ocean-rock_ao.png">
-      <Filter>Resource Files\textures</Filter>
-    </Image>
-    <Image Include="..\textures\ocean-rock_height.png">
-      <Filter>Resource Files\textures</Filter>
-    </Image>
-    <Image Include="..\textures\ocean-rock_metallic.png">
-      <Filter>Resource Files\textures</Filter>
-    </Image>
-    <Image Include="..\textures\ocean-rock_normal-dx.png">
-      <Filter>Resource Files\textures</Filter>
-    </Image>
-    <Image Include="..\textures\ocean-rock_preview.jpg">
-      <Filter>Resource Files\textures</Filter>
-    </Image>
-    <Image Include="..\textures\ocean-rock_roughness.png">
-      <Filter>Resource Files\textures</Filter>
-    </Image>
-    <Image Include="..\objects\generic-town-bus\df.png">
-      <Filter>Resource Files\objects\bus</Filter>
-    </Image>
-    <Image Include="..\..\..\COMP3011 - Graphics\self study 9\self study 9\objs\earth\map.jpg">
-      <Filter>Resource Files\objects\earth</Filter>
-    </Image>
-  </ItemGroup>
-  <ItemGroup>
-    <Object Include="..\objects\generic-town-bus\bus.obj">
-      <Filter>Resource Files\objects\bus</Filter>
-    </Object>
-    <Object Include="..\objects\earth\earth.obj">
-      <Filter>Resource Files\objects\earth</Filter>
-    </Object>
   </ItemGroup>
 </Project>

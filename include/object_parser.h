@@ -121,39 +121,6 @@ int obj_parse(const char* filename, std::vector<triangle>* io_tris)
         tri.reflect = false;
         tri.primID = static_cast<int>(i);
 
-        if (strcmp(filename, "objs/cornell2/cornell-box.obj") == 0)
-        {
-            tri.v1.col = glm::vec3(tri.primID / 32.f, tri.primID / 32.f, tri.primID / 32.f);
-            tri.v2.col = glm::vec3(tri.primID / 32.f, tri.primID / 32.f, tri.primID / 32.f);
-            tri.v3.col = glm::vec3(tri.primID / 32.f, tri.primID / 32.f, tri.primID / 32.f);
-
-            if (tri.primID == 6 || tri.primID == 7)
-            {
-                tri.v1.col = glm::vec3(1, 0, 0);
-                tri.v2.col = glm::vec3(1, 0, 0);
-                tri.v3.col = glm::vec3(1, 0, 0);
-            }
-            if (tri.primID == 8 || tri.primID == 9)
-            {
-                tri.v1.col = glm::vec3(0, 1, 0);
-                tri.v2.col = glm::vec3(0, 1, 0);
-                tri.v3.col = glm::vec3(0, 1, 0);
-            }
-            if (tri.primID == 10 || tri.primID == 11)
-            {
-                tri.v1.col = glm::vec3(0, 0, 1);
-                tri.v2.col = glm::vec3(0, 0, 1);
-                tri.v3.col = glm::vec3(0, 0, 1);
-            }
-        }
-
-        if (strcmp(filename, "objs/quad/quad.obj") == 0)
-        {
-            tri.v1.col = glm::vec3(1, 0, 0);
-            tri.v2.col = glm::vec3(0, 1, 0);
-            tri.v3.col = glm::vec3(0, 0, 1);
-        }
-
         io_tris->push_back(tri);
     }
 

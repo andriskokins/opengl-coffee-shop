@@ -9,6 +9,7 @@
 #include <array>
 
 #include "camera.h"
+#include "collision.h"
 #include "error.h"
 #include "file.h"
 #include "shader.h"
@@ -19,6 +20,9 @@
 #include "object_parser.h"
 
 SCamera Camera;
+
+// Vector of interactable object IDs
+std::vector<int> interactableObjects;
 
 // Each vertex includes: position (3), color (3), normal (3), and texcoords (2)
 std::vector<float> cube_vertices =
@@ -73,12 +77,6 @@ std::vector<float> cube_vertices =
      -0.5f,  0.5f, -0.5f,  1.f, 1.f, 1.f,  0.f, 1.f, 0.f,     0.0f, 0.0f
 };
 
-GLuint albedo;
-GLuint ao;
-GLuint metallic;
-GLuint normal;
-GLuint roughness;
-
 #define NUM_BUFFERS 13
 #define NUM_VAOS 13
 GLuint Buffers[NUM_BUFFERS];
@@ -86,7 +84,6 @@ GLuint VAOs[NUM_VAOS];
 
 #define WIDTH 1024
 #define HEIGHT 768
-
 
 struct State
 {
@@ -110,11 +107,8 @@ void updateLightUniforms(GLuint program) {
         glUniform3fv(glGetUniformLocation(program, (prefix + "direction").c_str()), 1, glm::value_ptr(lights[i].direction));
         glUniform3fv(glGetUniformLocation(program, (prefix + "colour").c_str()), 1, glm::value_ptr(lights[i].colour));
         glUniform1f(glGetUniformLocation(program, (prefix + "intensity").c_str()), lights[i].intensity);
-        glUniform1f(glGetUniformLocation(program, (prefix + "constant").c_str()), lights[i].constant);
-        glUniform1f(glGetUniformLocation(program, (prefix + "linear").c_str()), lights[i].linear);
-        glUniform1f(glGetUniformLocation(program, (prefix + "quadratic").c_str()), lights[i].quadratic);
-        glUniform1f(glGetUniformLocation(program, (prefix + "cutOff").c_str()), lights[i].cutOff);
-        glUniform1f(glGetUniformLocation(program, (prefix + "outerCutOff").c_str()), lights[i].outerCutOff);
+        glUniform1i(glGetUniformLocation(program, (prefix + "isOn").c_str()), lights[i].isOn);
+
     }
 }
 
@@ -445,6 +439,84 @@ void initialiseBuffers(std::vector<float> vertices, int bufferIndex)
     glEnableVertexAttribArray(3);
 }
 
+void handleInteraction(int modelId, float distance) {
+    if (std::find(interactableObjects.begin(), interactableObjects.end(), modelId) != interactableObjects.end()) 
+    {
+        glm::vec3 currentRotation = models.at(modelId).rotation;
+        glm::vec3 newRotation = currentRotation;
+        glm::vec3 newPosition = models.at(modelId).position;
+
+        if (static_cast<int>(round(fmod(currentRotation.x, 360.0f))) == 0) 
+        {
+            newRotation.x = 180.0f; // On state
+            newPosition.y = 2.9f;   // Y axis needs to be adjusted, might be caused due to the order of transformations in drawModels()
+        }
+        else {
+            newRotation.x = 0.0f;   // Off state
+            newPosition.y = 2.f;
+        }
+        // Keep the original Z rotations
+        newRotation.z = currentRotation.z;
+
+        setTranformations(modelId, newPosition, newRotation, models.at(modelId).scale);
+
+        // Toggle the light
+        if (modelId == 12)
+        {
+            lights.at(0).isOn = !lights.at(0).isOn;
+            lights.at(0).shadow.updateShadow = true;
+        }
+        else if(modelId == 22)
+        {
+            lights.at(1).isOn = !lights.at(1).isOn;
+            lights.at(2).isOn = !lights.at(2).isOn;
+            lights.at(1).shadow.updateShadow = true;
+            lights.at(2).shadow.updateShadow = true;
+        }
+        else if (modelId == 23)
+        {
+            lights.at(3).isOn = !lights.at(3).isOn;
+            lights.at(3).shadow.updateShadow = true;
+        }
+    }
+}
+
+void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) 
+    {
+        // Get ray origin and direction from camera
+        glm::vec3 rayOrigin = Camera.Position;
+        glm::vec3 rayDir = glm::normalize(Camera.Front);
+
+        float closestIntersection = FLT_MAX;
+        int clickedModelIndex = -1;
+
+        // Iterate through all models
+        for (int i = 0; i < models.size(); ++i) {
+            AABB worldAABB = calculateWorldAABB(models.at(i));
+            float intersectionDist;
+            // Check for intersection
+            if (intersectRayAABB(rayOrigin, rayDir, worldAABB, intersectionDist)) {
+                // If this intersection is closer than the previous closest, update
+                if (intersectionDist < closestIntersection) {
+                    closestIntersection = intersectionDist;
+                    clickedModelIndex = i;
+                }
+            }
+        }
+
+        // Output result
+        if (clickedModelIndex != -1) {
+            std::cout << "Clicked on model index: " << clickedModelIndex
+                << " at distance: " << closestIntersection << std::endl;
+            handleInteraction(clickedModelIndex, closestIntersection);
+        }
+        else {
+            std::cout << "Clicked on empty space." << std::endl;
+        }
+    }
+}
+
 int main(int argc, char** argv)
 {
     // Variables for FPS counter
@@ -475,6 +547,7 @@ int main(int argc, char** argv)
     glfwSetWindowSizeCallback(window, SizeCallback);
     glfwSetCursorPosCallback(window, mouseCallback);
     glfwSetScrollCallback(window, ScrollCallback);
+    glfwSetMouseButtonCallback(window, mouseButtonCallback);
 
     gl3wInit();
 
@@ -493,10 +566,11 @@ int main(int argc, char** argv)
 	/////////////////////////////////////////////
 
     // Model IDs
-    int table, chair, floor, counter_table, counter_top, wall, grinder, coffee_machine, shelf, coffee_bag, light_bulb, light_fixture;
+    int table, chair, floor, counter_table, counter_top, wall, grinder, coffee_machine, shelf, coffee_bag, light_bulb, light_fixture, light_switch;
     // Models paths
     std::string table_path = "../objects/table/", chair_path = "../objects/chair/", grinder_path = "../objects/grinder/", coffee_machine_path = "../objects/coffee_machine/",
-        shelf_path = "../objects/shelf/", coffee_bag_path = "../objects/coffee_bag/", light_bulb_path = "../objects/light/", light_fixture_path = "../objects/light2/";
+        shelf_path = "../objects/shelf/", coffee_bag_path = "../objects/coffee_bag/", light_bulb_path = "../objects/light/", light_fixture_path = "../objects/light2/",
+	light_switch_path = "../objects/light_switch/";
     // Texture paths
     std::string floor_path = "../textures/floor/", counter_table_path = "../textures/oak-wood-bare-ue/", counter_top_path = "../textures/cloudy-veined-quartz-ue/",
 	brick_wall_path = "../textures/brick-wall-ue/";
@@ -560,6 +634,14 @@ int main(int argc, char** argv)
         light_fixture_path + "DefaultMaterial_Normal.png",
         light_fixture_path + "DefaultMaterial_Roughness.jpg",
         light_fixture_path + "DefaultMaterial_Metallic.jpg");
+    light_switch = load(light_switch_path + "light_swich2.obj",
+        light_switch_path + "None_ColorMap.png",
+        light_switch_path + "None_NormalMap2.png",
+        light_switch_path + "None_RoughnessMap.png",
+        light_switch_path + "None_MetalnessMap.png");
+
+    // Add light switch to the interactable list of models
+    interactableObjects.push_back(light_switch);
 
     models.at(floor).textures.textureScale = 12.f;
     models.at(counter_top).textures.textureScale = 4.f;
@@ -577,12 +659,16 @@ int main(int argc, char** argv)
     setTranformations(coffee_bag, glm::vec3(-7.8, 3.52, 0), glm::vec3(0, 90.f, 0), glm::vec3(0.03));
     setTranformations(light_bulb, glm::vec3(5, 7, 0), glm::vec3(0), glm::vec3(0.02f));
     setTranformations(light_fixture, glm::vec3(0, 7.f, -2.5), glm::vec3(0), glm::vec3(0.01));
+    setTranformations(light_switch, glm::vec3(-7.94, 2, 7), glm::vec3(0, 0,-90), glm::vec3(0.15));
 
+    // Initialise AABB
+    for (auto& model : models)
+        calculateAABB(model);
 
     // Initialise the lights shadow maps
     //lights[0].position = glm::vec3(2.f, 6.f, 7.f);
-    addDirectionalLight(glm::normalize(glm::vec3(0, -1.0f, -0.3f)), glm::vec3(1), 0.05f);
-    addSpotLight(glm::vec3(0, -1, 0), glm::vec3(0, 6.95f, -2.5), rgb2vec(247, 179, 134), 0.75f);
+    addDirectionalLight(glm::normalize(glm::vec3(0, -1.0f, -0.3f)), glm::vec3(1), 0.1f);
+    addSpotLight(glm::vec3(0, -1, 0), glm::vec3(0, 6.95f, -2.5), rgb2vec(255, 212, 226), 0.75f);
     addSpotLight(glm::vec3(0, -1, 0), glm::vec3(0, 6.95f, 5), rgb2vec(210, 230, 255), 0.75f);
     addPositionalLight(glm::vec3(5, 6, 0), rgb2vec(255,223,142) , 1.f);
     //addPositionalLight(glm::vec3(-5, 0, 0), BLUE, 1.f);
@@ -615,6 +701,7 @@ int main(int argc, char** argv)
     initialiseBuffers(models.at(coffee_bag).vertices, models.at(coffee_bag).bufferIndex);
     initialiseBuffers(models.at(light_bulb).vertices, models.at(light_bulb).bufferIndex);
     initialiseBuffers(models.at(light_fixture).vertices, models.at(light_fixture).bufferIndex);
+    initialiseBuffers(models.at(light_switch).vertices, models.at(light_switch).bufferIndex);
 
 
     int duplicateID;
@@ -636,6 +723,12 @@ int main(int argc, char** argv)
     setTranformations(duplicateID, glm::vec3(-7.65, 3.52, -5), glm::vec3(0), glm::vec3(0.03));
     duplicateID = duplicateModel(light_fixture);
     setTranformations(duplicateID, glm::vec3(0, 7.f, 5), glm::vec3(0), glm::vec3(0.01));
+    duplicateID = duplicateModel(light_switch);
+    interactableObjects.push_back(duplicateID);
+    setTranformations(duplicateID, glm::vec3(-7.94, 2, 6.5), glm::vec3(0, 0, -90), glm::vec3(0.15));
+    duplicateID = duplicateModel(light_switch);
+    interactableObjects.push_back(duplicateID);
+    setTranformations(duplicateID, glm::vec3(-7.94, 2, 6), glm::vec3(0, 0, -90), glm::vec3(0.15));
 
     glEnable(GL_DEPTH_TEST);
     // Resize the vector to match the number of lights
@@ -695,7 +788,7 @@ int main(int argc, char** argv)
 	        	else if (lights[i].type == SPOT)
 	        	{
 	        		float near_plane = 1.f, far_plane = 70.f;
-	        		float lightCutoffRadians = acos(lights[i].outerCutOff);
+	        		float lightCutoffRadians = acos(sin(glm::radians(25.f)));
 	        		float fov = glm::degrees(lightCutoffRadians * 2.0f);
 	        		glm::mat4 lightProjection = glm::perspective(glm::radians(fov), (float)SH_MAP_WIDTH / (float)SH_MAP_HEIGHT, near_plane, far_plane);
 	        		glm::mat4 lightView = glm::lookAt(lights[i].position, lights[i].position + lights[i].direction, glm::vec3(0.f, 1.f, 0.f));
