@@ -136,6 +136,7 @@
     <ClCompile Include="Assessment2.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\include\animation.h" />
     <ClInclude Include="..\..\include\bitmap.h" />
     <ClInclude Include="..\..\include\camera.h" />
     <ClInclude Include="..\..\include\error.h" />

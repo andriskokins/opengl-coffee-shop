@@ -8,6 +8,7 @@
 #include <string>
 #include <array>
 
+#include "animation.h"
 #include "camera.h"
 #include "include/collision.h"
 #include "error.h"
@@ -460,7 +461,7 @@ void handleInteraction(int modelId, float distance) {
 
         setTranformations(modelId, newPosition, newRotation, models.at(modelId).scale);
 
-        // Toggle the light
+        // Toggle the lights
         if (modelId == 12)
         {
             lights.at(0).isOn = !lights.at(0).isOn;
@@ -730,6 +731,9 @@ int main(int argc, char** argv)
     interactableObjects.push_back(duplicateID);
     setTranformations(duplicateID, glm::vec3(-7.94, 2, 6), glm::vec3(0, 0, -90), glm::vec3(0.15));
 
+    // Initialise animations
+    createAnimation(20, 10, 20, glm::vec3(-6, 0.1, -4), glm::vec3(-90,0,0));
+
     glEnable(GL_DEPTH_TEST);
     // Resize the vector to match the number of lights
     lightSpaceMatrices.resize(lights.size());
@@ -767,7 +771,8 @@ int main(int argc, char** argv)
         // Process keyboard input
         processKeyboard(window, frameTime);
 
-        //int posLightIndex = 0;
+        // Update animation
+        updateAnimations(frameTime);
 
         // Generate a depth map for each light
         for (int i = 0; i < lights.size(); i++)

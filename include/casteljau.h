@@ -64,7 +64,7 @@ float* MakeFloatsFromVector(std::vector<point> curve, int &num_verts, int &num_f
 		vertexAttributes[index + 0] = p.x;
 		vertexAttributes[index + 1] = p.y;
 		vertexAttributes[index + 2] = p.z;
-		// colouur
+		// colour
 		vertexAttributes[index + 3] = r;
 		vertexAttributes[index + 4] = g;
 		vertexAttributes[index + 5] = b;
