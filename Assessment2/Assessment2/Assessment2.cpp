@@ -1,4 +1,4 @@
-#include <GL/gl3w.h>
+﻿#include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -10,14 +10,14 @@
 
 #include "animation.h"
 #include "camera.h"
-#include "include/collision.h"
+#include "collision.h"
 #include "error.h"
 #include "file.h"
 #include "shader.h"
 #include "shadow.h"
 #include "texture.h"
 #include "light.h"
-#include "include/model.h"
+#include "model.h"
 #include "object_parser.h"
 #include "torus.h"
 
@@ -79,8 +79,8 @@ std::vector<float> cube_vertices =
      -0.5f,  0.5f, -0.5f,  1.f, 1.f, 1.f,  0.f, 1.f, 0.f,     0.0f, 0.0f
 };
 
-#define NUM_BUFFERS 16
-#define NUM_VAOS 16
+#define NUM_BUFFERS 17
+#define NUM_VAOS 17
 GLuint Buffers[NUM_BUFFERS];
 GLuint VAOs[NUM_VAOS];
 
@@ -228,9 +228,9 @@ void processKeyboard(GLFWwindow* window, double deltaTime)
     {
         state->flashlightEnabled = !state->flashlightEnabled;
         std::cout << "Spotlight: " << (state->flashlightEnabled ? "ON" : "OFF") << std::endl;
-        lights[0].direction = Camera.Front;
-        lights[0].position = Camera.Position;
-        lights[0].shadow.updateShadow = true;
+        lights[1].direction = Camera.Front;
+        lights[1].position = Camera.Position;
+        lights[1].shadow.updateShadow = true;
         //saveShadowMapToBitmap(lights[0].shadow.Texture, SH_MAP_WIDTH, SH_MAP_HEIGHT);
 
     }
@@ -463,19 +463,19 @@ void handleInteraction(int modelId, float distance) {
         setTranformations(modelId, newPosition, newRotation, models.at(modelId).scale);
 
         // Toggle the lights
-        if (modelId == 12)
+        if (modelId == interactableObjects.at(0))
         {
             lights.at(0).isOn = !lights.at(0).isOn;
             lights.at(0).shadow.updateShadow = true;
         }
-        else if(modelId == 25)
+        else if(modelId == interactableObjects.at(1))
         {
             lights.at(1).isOn = !lights.at(1).isOn;
             lights.at(2).isOn = !lights.at(2).isOn;
             lights.at(1).shadow.updateShadow = true;
             lights.at(2).shadow.updateShadow = true;
         }
-        else if (modelId == 26)
+        else if (modelId == interactableObjects.at(2))
         {
             lights.at(3).isOn = !lights.at(3).isOn;
             lights.at(3).shadow.updateShadow = true;
@@ -573,11 +573,11 @@ int main(int argc, char** argv)
 
     // Model IDs
     int table, chair, floor, counter_table, counter_top, wall, grinder, coffee_machine, shelf, coffee_bag, light_bulb, light_fixture, light_switch,
-	low_torus, high_torus, plate;
+	low_torus, high_torus, plate, mug;
     // Models paths
     std::string table_path = "../objects/table/", chair_path = "../objects/chair/", grinder_path = "../objects/grinder/", coffee_machine_path = "../objects/coffee_machine/",
-        shelf_path = "../objects/shelf/", coffee_bag_path = "../objects/coffee_bag/", light_bulb_path = "../objects/light/", light_fixture_path = "../objects/light2/",
-	light_switch_path = "../objects/light_switch/", plate_path = "../objects/plate/";
+	shelf_path = "../objects/shelf/", coffee_bag_path = "../objects/coffee_bag/", light_bulb_path = "../objects/light/", light_fixture_path = "../objects/light2/",
+	light_switch_path = "../objects/light_switch/", plate_path = "../objects/plate/", mug_path = "../objects/mug/";
     // Texture paths
     std::string floor_path = "../textures/floor/", counter_table_path = "../textures/oak-wood-bare-ue/", counter_top_path = "../textures/cloudy-veined-quartz-ue/",
 	brick_wall_path = "../textures/brick-wall-ue/", gold_path = "../textures/gold-scuffed/";
@@ -657,6 +657,7 @@ int main(int argc, char** argv)
         gold_path + "gold-scuffed_roughness.png",
         gold_path + "gold-scuffed_metallic.png");
     plate = load(plate_path + "plate.obj", plate_path + "white.png");
+    mug = load(mug_path + "cup.obj", mug_path + "albedo.jpg", mug_path+"normal.jpg", mug_path+"roughness.jpg");
 
     // Add light switch to the interactable list of models
     interactableObjects.push_back(light_switch);
@@ -678,9 +679,10 @@ int main(int argc, char** argv)
     setTranformations(light_bulb, glm::vec3(5, 7, 0), glm::vec3(0), glm::vec3(0.02f));
     setTranformations(light_fixture, glm::vec3(0, 7.f, -2.5), glm::vec3(0), glm::vec3(0.01));
     setTranformations(light_switch, glm::vec3(-7.94, 2, 7), glm::vec3(0, 0,-90), glm::vec3(0.15));
-    setTranformations(low_torus, glm::vec3(4.1, 1.74, 0.075), glm::vec3(90,0,0), glm::vec3(0.06));
-    setTranformations(high_torus, glm::vec3(6.01, 1.74, -0.02), glm::vec3(90, 0, 0), glm::vec3(0.06));
-    setTranformations(plate, glm::vec3(4.1, 0.45, 0.5), glm::vec3(0), glm::vec3(0.05));
+    setTranformations(low_torus, glm::vec3(4.1, 1.75, -0.1), glm::vec3(90,0,0), glm::vec3(0.085));
+    setTranformations(high_torus, glm::vec3(6.01, 1.75, -0.02), glm::vec3(90, 0, 0), glm::vec3(0.085));
+    setTranformations(plate, glm::vec3(4.1, -0.05, 0.5), glm::vec3(0), glm::vec3(0.07));
+    setTranformations(mug, glm::vec3(4, 1.76, 0.5), glm::vec3(0), glm::vec3(0.0002));
 
 
     // Initialise AABB
@@ -690,8 +692,8 @@ int main(int argc, char** argv)
     // Initialise the lights shadow maps
     //lights[0].position = glm::vec3(2.f, 6.f, 7.f);
     addDirectionalLight(glm::normalize(glm::vec3(0, -1.0f, -0.3f)), glm::vec3(1), 0.1f);
-    addSpotLight(glm::vec3(0, -1, 0), glm::vec3(0, 6.95f, -2.5), rgb2vec(255, 212, 226), 0.75f);
-    addSpotLight(glm::vec3(0, -1, 0), glm::vec3(0, 6.95f, 5), rgb2vec(210, 230, 255), 0.75f);
+    addSpotLight(glm::vec3(0.001, -0.99, 0.001), glm::vec3(0, 6.95f, -2.5), rgb2vec(255, 212, 226), 0.75f);
+    addSpotLight(glm::vec3(0.001, -0.99, 0.001), glm::vec3(0, 6.95f, 5), rgb2vec(210, 230, 255), 0.75f);
     addPositionalLight(glm::vec3(5, 6, 0), rgb2vec(255,223,142) , 1.f);
     //addPositionalLight(glm::vec3(-5, 0, 0), BLUE, 1.f);
     //addPositionalLight(glm::vec3(0, 0, -5), GREEN, 1.f);
@@ -699,7 +701,6 @@ int main(int argc, char** argv)
     cubeMapMatrices.reserve(lights.size());
     lightSpaceMatrices.reserve(lights.size());
     printf("Lights size: %d\n", lights.size());
-
 
     GLuint program = CompileShader("pbr.vert", "pbr.frag");
     GLuint shadow_program = CompileShader("shadow.vert", "shadow.frag");
@@ -746,6 +747,8 @@ int main(int argc, char** argv)
     setTranformations(duplicateID, glm::vec3(-7.8, 3.52, 5), glm::vec3(0, 85.f, 0), glm::vec3(0.03));
     duplicateID = duplicateModel(coffee_bag);
     setTranformations(duplicateID, glm::vec3(-7.65, 3.52, -5), glm::vec3(0), glm::vec3(0.03));
+    // Initialise animations
+    createAnimation(duplicateID, 10, 20, glm::vec3(-6, 0.1, -4), glm::vec3(-90, 0, 0));
     duplicateID = duplicateModel(light_fixture);
     setTranformations(duplicateID, glm::vec3(0, 7.f, 5), glm::vec3(0), glm::vec3(0.01));
     duplicateID = duplicateModel(light_switch);
@@ -755,15 +758,14 @@ int main(int argc, char** argv)
     interactableObjects.push_back(duplicateID);
     setTranformations(duplicateID, glm::vec3(-7.94, 2, 6), glm::vec3(0, 0, -90), glm::vec3(0.15));
     duplicateID = duplicateModel(plate);
-    setTranformations(duplicateID, glm::vec3(6, 0.45, 0.4), glm::vec3(0), glm::vec3(0.05));
-
-    // Initialise animations
-    createAnimation(23, 10, 20, glm::vec3(-6, 0.1, -4), glm::vec3(-90,0,0));
+    setTranformations(duplicateID, glm::vec3(6, -0.05, 0.55), glm::vec3(0), glm::vec3(0.07));
 
     glEnable(GL_DEPTH_TEST);
     // Resize the vector to match the number of lights
     lightSpaceMatrices.resize(lights.size());
     cubeMapMatrices.resize(lights.size());
+
+    glfwSetTime(0); // Reset glfw time to account for loading time
 
     while (!glfwWindowShouldClose(window))
     {
@@ -779,14 +781,15 @@ int main(int argc, char** argv)
         if (currentTime - lastFpsTime >= 1.0 / 30.0) 
         {
             // Calculate FPS
-            fpsString = std::to_string(round(frameCount / (currentTime - lastFpsTime)));
-            msString = std::to_string(((currentTime - lastFpsTime) / frameCount) * 1000);
+            fpsString = std::to_string((int)(frameCount / (currentTime - lastFpsTime)));
+            msString = std::to_string((float)(((currentTime - lastFpsTime) / frameCount) * 1000));
 
+            std::string time = std::to_string(glfwGetTime());
             std::string posX = std::to_string(Camera.Position.x);
             std::string posY = std::to_string(Camera.Position.y);
             std::string posZ = std::to_string(Camera.Position.z);
-            std::string newTitle = "YoutubeOpenGL - " + fpsString + "FPS / " + msString + "ms" +
-                "\t\t\t" + "X: " + posX + " Y: " + posY + " Z: " + posZ;
+            std::string newTitle = "Coffee Shop Scene - " + fpsString + "FPS / " + msString.substr(0, 5) + "ms" +
+                "\t\t\t" + "X: " + posX + " Y: " + posY + " Z: " + posZ +"\t\t" + +" seconds: "+time;
             glfwSetWindowTitle(window, newTitle.c_str());
 
             // Reset FPS counter variables

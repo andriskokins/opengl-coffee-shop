@@ -21,7 +21,7 @@ enum LightType {
 struct Light {
     bool isOn = TRUE;
     int type;
-    glm::vec3 position = glm::vec3(0);
+    glm::vec3 position = glm::vec3(0, 3.5, 0);
     glm::vec3 direction = glm::vec3(0);
     glm::vec3 colour = glm::vec3(1);
     float intensity = 1.f;

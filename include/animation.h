@@ -3,7 +3,8 @@
 #include <glm/vec3.hpp>
 
 #include "casteljau.h"
-#include "../Assessment2/Assessment2/include/model.h"
+#include "light.h"
+#include "model.h"
 
 struct Animation
 {
@@ -78,6 +79,17 @@ int createAnimation(int model, float duration, float delay, glm::vec3 endPos, gl
 
 void updateAnimations(float deltaTime)
 {
+	// Add this static variable to track accumulated time between shadow updates
+	static float shadowUpdateTimer = 0.0f;
+	shadowUpdateTimer += deltaTime;
+
+	// Update shadows every 0.1 seconds (10 times per second) instead of every frame
+	if (shadowUpdateTimer >= 0.02f) {
+		for (auto& light : lights)
+			light.shadow.updateShadow = true;
+		shadowUpdateTimer = 0.0f; // Reset timer after update
+	}
+
 	for (auto& anim : animations) 
 	{
 		if (!anim.isPlaying) continue;
@@ -107,8 +119,8 @@ void updateAnimations(float deltaTime)
 		float t = anim.currentTime / anim.duration;
 
 		// Use casteljau to evaluate position on curve
-		std::list<point> ctrlPoints(anim.pathPoints.begin(), anim.pathPoints.end());
-		point currentPos = evaluate(t, ctrlPoints);
+		std::list<point> points(anim.pathPoints.begin(), anim.pathPoints.end());
+		point currentPos = evaluate(t, points);
 
 		// Linearly interpolate rotation and scale
 		glm::vec3 currentPosition(currentPos.x, currentPos.y, currentPos.z);
