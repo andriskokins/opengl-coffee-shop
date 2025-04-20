@@ -84,8 +84,8 @@ std::vector<float> cube_vertices =
 GLuint Buffers[NUM_BUFFERS];
 GLuint VAOs[NUM_VAOS];
 
-#define WIDTH 1024
-#define HEIGHT 768
+#define WIDTH 1920
+#define HEIGHT 1080
 
 struct State
 {

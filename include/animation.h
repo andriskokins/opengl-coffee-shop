@@ -25,6 +25,7 @@ struct Animation
 };
 
 std::vector<Animation> animations;
+bool activeAnimation = false;
 
 int createAnimation(int model, float duration, float delay, glm::vec3 endPos, glm::vec3 endRot)
 {
@@ -84,7 +85,7 @@ void updateAnimations(float deltaTime)
 	shadowUpdateTimer += deltaTime;
 
 	// Update shadows every 0.1 seconds (10 times per second) instead of every frame
-	if (shadowUpdateTimer >= 0.02f) {
+	if (shadowUpdateTimer >= 0.02f && activeAnimation) {
 		for (auto& light : lights)
 			light.shadow.updateShadow = true;
 		shadowUpdateTimer = 0.0f; // Reset timer after update
@@ -98,6 +99,7 @@ void updateAnimations(float deltaTime)
 		if (!anim.hasStarted) {
 			anim.delayTimer += deltaTime;
 			if (anim.delayTimer >= anim.delay) {
+				activeAnimation = true;
 				anim.hasStarted = true;
 			}
 			else {
@@ -112,6 +114,7 @@ void updateAnimations(float deltaTime)
 		if (anim.currentTime >= anim.duration) {
 			setTranformations(anim.model, anim.endPosition, anim.endRotation, models.at(anim.model).scale);
 			anim.isPlaying = false;
+			activeAnimation = false;
 			continue;
 		}
 
