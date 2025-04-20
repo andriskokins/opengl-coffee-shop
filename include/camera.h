@@ -3,9 +3,9 @@
 #include <stdio.h>
 #include <glm/glm.hpp>
 
-#define BASE_SPEED 10.f
-#define WALK_SPEED 5.f
-#define SPRINT_SPEED 20.f
+#define BASE_SPEED 5.f
+#define WALK_SPEED 2.5f
+#define SPRINT_SPEED 15.f
 
 
 struct SCamera

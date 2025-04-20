@@ -19,6 +19,7 @@
 #include "light.h"
 #include "include/model.h"
 #include "object_parser.h"
+#include "torus.h"
 
 SCamera Camera;
 
@@ -78,8 +79,8 @@ std::vector<float> cube_vertices =
      -0.5f,  0.5f, -0.5f,  1.f, 1.f, 1.f,  0.f, 1.f, 0.f,     0.0f, 0.0f
 };
 
-#define NUM_BUFFERS 13
-#define NUM_VAOS 13
+#define NUM_BUFFERS 16
+#define NUM_VAOS 16
 GLuint Buffers[NUM_BUFFERS];
 GLuint VAOs[NUM_VAOS];
 
@@ -179,7 +180,7 @@ void drawModels(unsigned int program)
         glUniformMatrix4fv(glGetUniformLocation(program, "model"), 1, GL_FALSE, glm::value_ptr(model));
 
         // Draw the triangles
-        // position (3), color (3), normal (3), and texcoords (2) = 11 floats per vertex
+        // position (3), colour (3), normal (3), and texcoords (2) = 11 floats per vertex
         // length of vertices divided by floats per vertex gives number of vertices per object
         glDrawArrays(GL_TRIANGLES, 0, obj.vertices.size() / 11);
     }
@@ -467,14 +468,14 @@ void handleInteraction(int modelId, float distance) {
             lights.at(0).isOn = !lights.at(0).isOn;
             lights.at(0).shadow.updateShadow = true;
         }
-        else if(modelId == 22)
+        else if(modelId == 25)
         {
             lights.at(1).isOn = !lights.at(1).isOn;
             lights.at(2).isOn = !lights.at(2).isOn;
             lights.at(1).shadow.updateShadow = true;
             lights.at(2).shadow.updateShadow = true;
         }
-        else if (modelId == 23)
+        else if (modelId == 26)
         {
             lights.at(3).isOn = !lights.at(3).isOn;
             lights.at(3).shadow.updateShadow = true;
@@ -566,15 +567,20 @@ int main(int argc, char** argv)
 	// Initialising objects and their textures //
 	/////////////////////////////////////////////
 
+    std::vector<float> lowpoly_torus_vertices, highpoly_torus_vertices;
+    lowpoly_torus_vertices = generateTorus(1.f, 0.3f, 8, 4);
+    highpoly_torus_vertices = generateTorus(1.f, 0.3f, 32, 16);
+
     // Model IDs
-    int table, chair, floor, counter_table, counter_top, wall, grinder, coffee_machine, shelf, coffee_bag, light_bulb, light_fixture, light_switch;
+    int table, chair, floor, counter_table, counter_top, wall, grinder, coffee_machine, shelf, coffee_bag, light_bulb, light_fixture, light_switch,
+	low_torus, high_torus, plate;
     // Models paths
     std::string table_path = "../objects/table/", chair_path = "../objects/chair/", grinder_path = "../objects/grinder/", coffee_machine_path = "../objects/coffee_machine/",
         shelf_path = "../objects/shelf/", coffee_bag_path = "../objects/coffee_bag/", light_bulb_path = "../objects/light/", light_fixture_path = "../objects/light2/",
-	light_switch_path = "../objects/light_switch/";
+	light_switch_path = "../objects/light_switch/", plate_path = "../objects/plate/";
     // Texture paths
     std::string floor_path = "../textures/floor/", counter_table_path = "../textures/oak-wood-bare-ue/", counter_top_path = "../textures/cloudy-veined-quartz-ue/",
-	brick_wall_path = "../textures/brick-wall-ue/";
+	brick_wall_path = "../textures/brick-wall-ue/", gold_path = "../textures/gold-scuffed/";
 
     table = load(table_path+"Round_table_low.obj",
         table_path + "Wood_beech_toas_brown_Diffuse_2k.jpg",
@@ -640,6 +646,17 @@ int main(int argc, char** argv)
         light_switch_path + "None_NormalMap2.png",
         light_switch_path + "None_RoughnessMap.png",
         light_switch_path + "None_MetalnessMap.png");
+    low_torus = addModel(lowpoly_torus_vertices,
+        gold_path+"gold-scuffed_basecolor-boosted.png",
+        gold_path+"gold-scuffed_normal.png",
+        gold_path+"gold-scuffed_roughness.png",
+        gold_path+"gold-scuffed_metallic.png");
+    high_torus = addModel(highpoly_torus_vertices,
+        gold_path + "gold-scuffed_basecolor-boosted.png",
+        gold_path + "gold-scuffed_normal.png",
+        gold_path + "gold-scuffed_roughness.png",
+        gold_path + "gold-scuffed_metallic.png");
+    plate = load(plate_path + "plate.obj", plate_path + "white.png");
 
     // Add light switch to the interactable list of models
     interactableObjects.push_back(light_switch);
@@ -661,6 +678,10 @@ int main(int argc, char** argv)
     setTranformations(light_bulb, glm::vec3(5, 7, 0), glm::vec3(0), glm::vec3(0.02f));
     setTranformations(light_fixture, glm::vec3(0, 7.f, -2.5), glm::vec3(0), glm::vec3(0.01));
     setTranformations(light_switch, glm::vec3(-7.94, 2, 7), glm::vec3(0, 0,-90), glm::vec3(0.15));
+    setTranformations(low_torus, glm::vec3(4.1, 1.74, 0.075), glm::vec3(90,0,0), glm::vec3(0.06));
+    setTranformations(high_torus, glm::vec3(6.01, 1.74, -0.02), glm::vec3(90, 0, 0), glm::vec3(0.06));
+    setTranformations(plate, glm::vec3(4.1, 0.45, 0.5), glm::vec3(0), glm::vec3(0.05));
+
 
     // Initialise AABB
     for (auto& model : models)
@@ -690,7 +711,9 @@ int main(int argc, char** argv)
     glGenVertexArrays(NUM_VAOS, VAOs);
 
     // Initialising buffers
-    initialiseBuffers(models.at(table).vertices, models.at(table).bufferIndex);
+    for (auto& model : models)
+        initialiseBuffers(model.vertices, model.bufferIndex);
+    /*initialiseBuffers(models.at(table).vertices, models.at(table).bufferIndex);
     initialiseBuffers(models.at(chair).vertices, models.at(chair).bufferIndex);
     initialiseBuffers(models.at(floor).vertices, models.at(floor).bufferIndex);
     initialiseBuffers(models.at(counter_table).vertices, models.at(counter_table).bufferIndex);
@@ -703,6 +726,7 @@ int main(int argc, char** argv)
     initialiseBuffers(models.at(light_bulb).vertices, models.at(light_bulb).bufferIndex);
     initialiseBuffers(models.at(light_fixture).vertices, models.at(light_fixture).bufferIndex);
     initialiseBuffers(models.at(light_switch).vertices, models.at(light_switch).bufferIndex);
+    initialiseBuffers(models.at(torus).vertices, models.at(torus).bufferIndex);*/
 
 
     int duplicateID;
@@ -730,9 +754,11 @@ int main(int argc, char** argv)
     duplicateID = duplicateModel(light_switch);
     interactableObjects.push_back(duplicateID);
     setTranformations(duplicateID, glm::vec3(-7.94, 2, 6), glm::vec3(0, 0, -90), glm::vec3(0.15));
+    duplicateID = duplicateModel(plate);
+    setTranformations(duplicateID, glm::vec3(6, 0.45, 0.4), glm::vec3(0), glm::vec3(0.05));
 
     // Initialise animations
-    createAnimation(20, 10, 20, glm::vec3(-6, 0.1, -4), glm::vec3(-90,0,0));
+    createAnimation(23, 10, 20, glm::vec3(-6, 0.1, -4), glm::vec3(-90,0,0));
 
     glEnable(GL_DEPTH_TEST);
     // Resize the vector to match the number of lights

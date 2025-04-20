@@ -150,6 +150,7 @@
     <ClInclude Include="..\..\include\tiny_obj_loader.h" />
     <ClInclude Include="include\collision.h" />
     <ClInclude Include="include\model.h" />
+    <ClInclude Include="torus.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="pbr.frag" />
