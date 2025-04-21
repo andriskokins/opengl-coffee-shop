@@ -4,8 +4,8 @@
 #include <glm/glm.hpp>
 #include "shadow.h"
 
-#define SH_MAP_WIDTH 2048
-#define SH_MAP_HEIGHT 2048
+#define SH_MAP_WIDTH 4096
+#define SH_MAP_HEIGHT 4096
 
 // Predefined colours
 #define RED glm::vec3(1, 0, 0)
@@ -21,7 +21,7 @@ enum LightType {
 struct Light {
     bool isOn = TRUE;
     int type;
-    glm::vec3 position = glm::vec3(0, 3.5, 0);
+    glm::vec3 position = glm::vec3(0, 10, 0);
     glm::vec3 direction = glm::vec3(0);
     glm::vec3 colour = glm::vec3(1);
     float intensity = 1.f;

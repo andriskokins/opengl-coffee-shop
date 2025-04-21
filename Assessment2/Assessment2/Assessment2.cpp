@@ -84,8 +84,8 @@ std::vector<float> cube_vertices =
 GLuint Buffers[NUM_BUFFERS];
 GLuint VAOs[NUM_VAOS];
 
-#define WIDTH 1920
-#define HEIGHT 1080
+#define WIDTH 1024
+#define HEIGHT 768
 
 struct State
 {
@@ -120,10 +120,6 @@ void drawModels(unsigned int program)
     for (model obj : models)
     {
         glBindVertexArray(VAOs[obj.bufferIndex]);
-
-        // Enable texturing
-        //glUniform1i(glGetUniformLocation(program, "useTexture"), 1);
-        //glUniform1i(glGetUniformLocation(program, "useSingleTexture"), 1);
 
         glUniform1f(glGetUniformLocation(program, "textureScale"), obj.textures.textureScale);
 
@@ -228,9 +224,9 @@ void processKeyboard(GLFWwindow* window, double deltaTime)
     {
         state->flashlightEnabled = !state->flashlightEnabled;
         std::cout << "Spotlight: " << (state->flashlightEnabled ? "ON" : "OFF") << std::endl;
-        lights[1].direction = Camera.Front;
-        lights[1].position = Camera.Position;
-        lights[1].shadow.updateShadow = true;
+        lights[0].direction = Camera.Front;
+        lights[0].position = Camera.Position;
+        lights[0].shadow.updateShadow = true;
         //saveShadowMapToBitmap(lights[0].shadow.Texture, SH_MAP_WIDTH, SH_MAP_HEIGHT);
 
     }
@@ -684,16 +680,15 @@ int main(int argc, char** argv)
     setTranformations(plate, glm::vec3(4.1, -0.05, 0.5), glm::vec3(0), glm::vec3(0.07));
     setTranformations(mug, glm::vec3(4, 1.76, 0.5), glm::vec3(0), glm::vec3(0.0002));
 
-
     // Initialise AABB
     for (auto& model : models)
         calculateAABB(model);
 
     // Initialise the lights shadow maps
     //lights[0].position = glm::vec3(2.f, 6.f, 7.f);
-    addDirectionalLight(glm::normalize(glm::vec3(0, -1.0f, -0.3f)), glm::vec3(1), 0.1f);
-    addSpotLight(glm::vec3(0.001, -0.99, 0.001), glm::vec3(0, 6.95f, -2.5), rgb2vec(255, 212, 226), 0.75f);
-    addSpotLight(glm::vec3(0.001, -0.99, 0.001), glm::vec3(0, 6.95f, 5), rgb2vec(210, 230, 255), 0.75f);
+    addDirectionalLight(glm::normalize(glm::vec3(0.01f, -1.0f, -0.01f)), glm::vec3(1), 0.3f);
+    addSpotLight(glm::vec3(0.001, -0.99, 0.001), glm::vec3(0, 6.95f, -2.5), rgb2vec(255, 212, 226), 1.f);
+    addSpotLight(glm::vec3(0.001, -0.99, 0.001), glm::vec3(0, 6.95f, 5), rgb2vec(210, 230, 255), 1.f);
     addPositionalLight(glm::vec3(5, 6, 0), rgb2vec(255,223,142) , 1.f);
     //addPositionalLight(glm::vec3(-5, 0, 0), BLUE, 1.f);
     //addPositionalLight(glm::vec3(0, 0, -5), GREEN, 1.f);
@@ -747,8 +742,9 @@ int main(int argc, char** argv)
     setTranformations(duplicateID, glm::vec3(-7.8, 3.52, 5), glm::vec3(0, 85.f, 0), glm::vec3(0.03));
     duplicateID = duplicateModel(coffee_bag);
     setTranformations(duplicateID, glm::vec3(-7.65, 3.52, -5), glm::vec3(0), glm::vec3(0.03));
-    // Initialise animations
+    // Initialise animation
     createAnimation(duplicateID, 10, 20, glm::vec3(-6, 0.1, -4), glm::vec3(-90, 0, 0));
+
     duplicateID = duplicateModel(light_fixture);
     setTranformations(duplicateID, glm::vec3(0, 7.f, 5), glm::vec3(0), glm::vec3(0.01));
     duplicateID = duplicateModel(light_switch);
@@ -782,7 +778,7 @@ int main(int argc, char** argv)
         {
             // Calculate FPS
             fpsString = std::to_string((int)(frameCount / (currentTime - lastFpsTime)));
-            msString = std::to_string((float)(((currentTime - lastFpsTime) / frameCount) * 1000));
+            msString = std::to_string((((currentTime - lastFpsTime) / frameCount) * 1000));
 
             std::string time = std::to_string(glfwGetTime());
             std::string posX = std::to_string(Camera.Position.x);
@@ -813,7 +809,7 @@ int main(int argc, char** argv)
 	        	if (lights[i].type == DIRECTIONAL)
 	        	{
 	        		float near_plane = 1.f, far_plane = 70.f;
-	        		glm::mat4 lightProjection = glm::ortho(-10.f, 10.f, -10.f, 10.f, near_plane, far_plane);
+	        		glm::mat4 lightProjection = glm::ortho(-15.f, 15.f, -15.f, 15.f, near_plane, far_plane);
 	        		glm::mat4 lightView = glm::lookAt(lights[i].position, lights[i].position + lights[i].direction, glm::vec3(0.f, 1.f, 0.f));
 	        		lightSpaceMatrices[i] = lightProjection * lightView;
 	        		generateDepthMap(shadow_program, lights[i].shadow, lightSpaceMatrices[i]);

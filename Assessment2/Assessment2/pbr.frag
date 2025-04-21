@@ -69,7 +69,7 @@ void main()
     vec3 V = normalize(camPos - FragPosWorldSpace);
 
     float defaultRoughness = 0.5;
-    float defaultMetallic = 0.0;
+    float defaultMetallic = 0.5;
     float defaultAO = 1.0;
  
     // Full PBR texture mode
@@ -77,15 +77,12 @@ void main()
 
     albedo = pow(texture(albedoMap, scaledTexCoords).rgb, vec3(2.2));
     // Use texture or default value
-    metallic = textureSize(metallicMap, 0).x > 1 ? 
-                texture(metallicMap, scaledTexCoords).r : defaultMetallic;
-    roughness = textureSize(roughnessMap, 0).x > 1 ? 
-                texture(roughnessMap, scaledTexCoords).r : defaultRoughness;
-    ao = textureSize(aoMap, 0).x > 1 ? 
-        texture(aoMap, scaledTexCoords).r : defaultAO;
+    metallic = textureSize(metallicMap, 0).x > 1 ? texture(metallicMap, scaledTexCoords).r : defaultMetallic;
+    roughness = textureSize(roughnessMap, 0).x > 1 ? texture(roughnessMap, scaledTexCoords).r : defaultRoughness;
+    ao = textureSize(aoMap, 0).x > 1 ? texture(aoMap, scaledTexCoords).r : defaultAO;
             
     // Use normal map if available, otherwise use vertex normal
-    normal = textureSize(normalMap, 0).x > 1 ? getNormalFromMap() : vec3(1);
+    normal = textureSize(normalMap, 0).x > 1 ? getNormalFromMap() : N;
 
     vec3 F0 = vec3(0.04);
     F0 = mix(F0, albedo, metallic);
@@ -243,6 +240,7 @@ vec3 getNormalFromMap()
 
 float shadowOnFragment(vec4 fragPosLightSpace, int lightIndex)
 {
+    Light light = lights[lightIndex];
     // Perspective divide
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
     projCoords = projCoords * 0.5 + 0.5;
@@ -251,30 +249,30 @@ float shadowOnFragment(vec4 fragPosLightSpace, int lightIndex)
     if(any(greaterThan(projCoords.xyz, vec3(1))) || any(lessThan(projCoords.xyz, vec3(0))))
         return 0.0; // Assume not in shadow
 
-    float closestDepth = texture(shadowMaps[lightIndex], projCoords.xy).r; 
     float currentDepth = projCoords.z;
     
-    // IMPORTANT: Get proper normal (use 'normal' variable which accounts for normal mapping)
-    // Use a MUCH smaller bias factor (0.001 instead of 0.05)
-    // And a MUCH smaller minimum bias (0.00025 instead of 0.005)
-    vec3 lightDir = normalize(lights[lightIndex].type == DIRECTIONAL_LIGHT ? 
-                             -lights[lightIndex].direction : 
-                             lights[lightIndex].position - FragPosWorldSpace);
-    float NdotL = max(dot(normalize(normal), lightDir), 0.0);
-    float bias = max(0.001 * (1.0 - NdotL), 0.005);
+    vec3 lightDir = normalize(light.type == DIRECTIONAL_LIGHT ? -light.direction : light.position - FragPosWorldSpace);
+
+    float bias;
+    if(light.type == SPOT_LIGHT)
+    {
+        bias = max(0.0025f * (1.0 - dot(normal, lightDir)), 0.00005f); // smaller bias for spot light since it has more accurate shadow maps
+    } else
+        bias = max(0.0025f * (1.f - dot(normal, lightDir)), 0.0005f);
     
-    // Reduce samples for better performance - try a plus pattern instead of full 3x3
     float shadow = 0.0;
     vec2 texelSize = 1.0 / textureSize(shadowMaps[lightIndex], 0);
     
-    // Sample center plus the 4 adjacent texels (cross pattern)
-    shadow += currentDepth - bias > texture(shadowMaps[lightIndex], projCoords.xy).r ? 1.0 : 0.0;
-    shadow += currentDepth - bias > texture(shadowMaps[lightIndex], projCoords.xy + vec2(texelSize.x, 0)).r ? 1.0 : 0.0;
-    shadow += currentDepth - bias > texture(shadowMaps[lightIndex], projCoords.xy - vec2(texelSize.x, 0)).r ? 1.0 : 0.0;
-    shadow += currentDepth - bias > texture(shadowMaps[lightIndex], projCoords.xy + vec2(0, texelSize.y)).r ? 1.0 : 0.0;
-    shadow += currentDepth - bias > texture(shadowMaps[lightIndex], projCoords.xy - vec2(0, texelSize.y)).r ? 1.0 : 0.0;
-    
-    return shadow / 5.0;
+    for(int x = -1; x <= 1; ++x)
+    {
+        for(int y = -1; y <= 1; ++y)
+        {
+            float pcfDepth = texture(shadowMaps[lightIndex], projCoords.xy + vec2(x, y) * texelSize).r; 
+            shadow += currentDepth - bias > pcfDepth  ? 1.0 : 0.0;        
+        }    
+    }
+
+    return shadow /= 9.0;
 }
 
 // Updated to use lightIndex for shadow cube map texture
@@ -286,10 +284,11 @@ float shadowCubeMapOnFragment(Light light, int lightIndex)
     float currentDepth = length(fragToLight);
     
     vec3 lightDir = normalize(fragToLight);
-    float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.0005);
+    float bias = max(0.5 * (1.0 - dot(normal, lightDir)), 0.0005);
     
-    int samples = 10;
-    float diskRadius = 0.05;
+    int samples = 20;
+    float viewDistance = length(camPos - FragPosWorldSpace);
+    float diskRadius = (1.0 + (viewDistance / farPlane)) / 25.0;
 
     vec3 sampleOffsetDirections[20] = vec3[]
     (
@@ -302,7 +301,6 @@ float shadowCubeMapOnFragment(Light light, int lightIndex)
 
     for (int i = 0; i < samples; i++)
     {
-        // Use cubeMapIndex instead of a hardcoded value
         float closestDepth = texture(shadowCubeMaps[lightIndex], fragToLight + sampleOffsetDirections[i] * diskRadius).r;
         closestDepth *= farPlane;
         if(currentDepth - bias > closestDepth)
