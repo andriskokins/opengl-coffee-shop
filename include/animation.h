@@ -71,6 +71,7 @@ int createAnimation(int model, float duration, float delay, glm::vec3 endPos, gl
 	ctrl_points.push_back(pMid2);
 	ctrl_points.push_back(p2);
 
+	// Use control points to make a smoother curve
 	std::vector<point> curve = EvaluateBezierCurve(ctrl_points, 64);
 	anim.pathPoints = ctrl_points;
 
@@ -84,8 +85,9 @@ void updateAnimations(float deltaTime)
 	static float shadowUpdateTimer = 0.0f;
 	shadowUpdateTimer += deltaTime;
 
-	// Update shadows every 0.1 seconds (10 times per second) instead of every frame
-	if (shadowUpdateTimer >= 0.02f && activeAnimation) {
+	// Update shadow maps if animation is active
+	if (shadowUpdateTimer >= 0.02f && activeAnimation) 
+	{
 		for (auto& light : lights)
 			light.shadow.updateShadow = true;
 		shadowUpdateTimer = 0.0f; // Reset timer after update

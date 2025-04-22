@@ -70,24 +70,6 @@ void addSpotLight(glm::vec3 direction, glm::vec3 position, glm::vec3 colour, flo
     printf("Success: added spot light\n");
 }
 
-//void addLight(LightType type, glm::vec3 position = glm::vec3(0), glm::vec3 direction = glm::vec3(0), glm::vec3 colour = glm::vec3(1),
-//    float intensity = 1.f, float constant = 1.f, float linear = 0.09f, float quadratic = 0.032f, float cutOff = 15.f, float outerCutOff = 25.f)
-//{
-//    Light light;
-//    light.type = type;
-//    light.position = position;
-//    light.direction = direction;
-//    light.colour = colour;
-//    light.intensity = intensity;
-//    light.constant = constant;
-//    light.linear = linear;
-//    light.quadratic = quadratic;
-//    light.cutOff = glm::cos(glm::radians(cutOff));
-//    light.outerCutOff = glm::cos(glm::radians(outerCutOff));
-//
-//    lights.push_back(light);
-//}
-
 std::vector<Light> getLights()
 {
     return lights;

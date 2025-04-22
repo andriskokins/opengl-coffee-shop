@@ -91,17 +91,19 @@ struct State
 {
     float FOV = 45.f;
     bool firstMouse = true;
-    double lastX = WIDTH / 2.0;
-    double lastY = HEIGHT / 2.0;
+    double lastX;
+    double lastY;
     bool flashlightEnabled = false;
     bool noClipEnabled = false;
     bool crouchEnabled = false;
 };
 
-void updateLightUniforms(GLuint program) {
+void updateLightUniforms(GLuint program)
+{
     glUniform1i(glGetUniformLocation(program, "numLights"), lights.size());
 
-    for (int i = 0; i < lights.size(); i++) {
+    for (int i = 0; i < lights.size(); i++) 
+    {
         std::string prefix = "lights[" + std::to_string(i) + "].";
 
         glUniform1i(glGetUniformLocation(program, (prefix + "type").c_str()), lights[i].type);
@@ -116,13 +118,10 @@ void updateLightUniforms(GLuint program) {
 
 void drawModels(unsigned int program)
 {
-
     for (model obj : models)
     {
 	    if (obj.textures.hasOpacity)
-	    {
             continue; // skip transparent
-	    }
 
         glBindVertexArray(VAOs[obj.bufferIndex]);
 
@@ -191,7 +190,7 @@ void drawModels(unsigned int program)
     {
         if (models[i].textures.hasOpacity) {
             // Calculate world AABB center
-            AABB worldAABB = calculateWorldAABB(models[i]); // Assuming you have this function
+            AABB worldAABB = calculateWorldAABB(models[i]);
             glm::vec3 center = (worldAABB.min + worldAABB.max) * 0.5f;
             float distance = glm::length(Camera.Position - center); // Use center distance
             sortedTransparentModels.push_back(std::make_pair(-distance, i));
@@ -202,7 +201,7 @@ void drawModels(unsigned int program)
 
     glDepthMask(GL_FALSE); // Disable depth writing for transparent objects
     glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // Standard transparency blending
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     for (auto& pair : sortedTransparentModels)
     {
         model& obj = models[pair.second];
@@ -277,6 +276,7 @@ void processKeyboard(GLFWwindow* window, double deltaTime)
         glfwSetWindowShouldClose(window, true);
 
     static bool keyPressed[GLFW_KEY_LAST + 1] = { false };
+
     State* state = (State*)glfwGetWindowUserPointer(window);
 
     // Helper function for "just pressed" detection
@@ -308,17 +308,6 @@ void processKeyboard(GLFWwindow* window, double deltaTime)
     else
         Camera.MovementSpeed = BASE_SPEED;
 
-    // Toggle flashlight
-    if (keyJustPressed(GLFW_KEY_F)) 
-    {
-        state->flashlightEnabled = !state->flashlightEnabled;
-        std::cout << "Spotlight: " << (state->flashlightEnabled ? "ON" : "OFF") << std::endl;
-        lights[0].direction = Camera.Front;
-        lights[0].position = Camera.Position;
-        lights[0].shadow.updateShadow = true;
-        //saveShadowMapToBitmap(lights[0].shadow.Texture, SH_MAP_WIDTH, SH_MAP_HEIGHT);
-
-    }
     // Toggle flight / fly through camera
     if (keyJustPressed(GLFW_KEY_G)) 
     {
@@ -333,41 +322,33 @@ void processKeyboard(GLFWwindow* window, double deltaTime)
     }
 
     if (!state->noClipEnabled)
-    {
         Camera.Position.y = 2.5f; // ground camera for first person effect
-    }
+
     if (state->crouchEnabled)
     {
         Camera.Position.y /= 2;
         Camera.MovementSpeed /= 4; // crouch slows movement speed
     }
 
-    // Move selected light with IJKL keys
     static int selectedLight = 0;
 
     // Select light with number keys
     for (int i = 0; i < lights.size(); i++) {
         if (glfwGetKey(window, GLFW_KEY_1 + i) == GLFW_PRESS) {
             selectedLight = i;
-            printf("Selected light: %d\n", selectedLight);
         }
     }
 
-    float lightSpeed = 0.01f;
-
-    // Move selected light
-    if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)
-        lights[selectedLight].position.z -= lightSpeed;
-    if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)
-        lights[selectedLight].position.z += lightSpeed;
-    if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS)
-        lights[selectedLight].position.x -= lightSpeed;
-    if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)
-        lights[selectedLight].position.x += lightSpeed;
-    if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS)
-        lights[selectedLight].position.y += lightSpeed;
-    if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
-        lights[selectedLight].position.y -= lightSpeed;
+    // Move light
+    if (keyJustPressed(GLFW_KEY_F))
+    {
+        state->flashlightEnabled = !state->flashlightEnabled;
+        printf("Moved light %i\n", selectedLight);
+        lights[selectedLight].direction = Camera.Front;
+        lights[selectedLight].position = Camera.Position;
+        lights[selectedLight].shadow.updateShadow = true;
+        //saveShadowMapToBitmap(lights[0].shadow.Texture, SH_MAP_WIDTH, SH_MAP_HEIGHT);
+    }
 }
 
 void SizeCallback(GLFWwindow* window, int w, int h)
@@ -381,8 +362,7 @@ void generateDepthMap(unsigned int shadowShaderProgram, ShadowStruct shadow, glm
     glBindFramebuffer(GL_FRAMEBUFFER, shadow.FBO);
     glClear(GL_DEPTH_BUFFER_BIT);
     glUseProgram(shadowShaderProgram);
-    glUniformMatrix4fv(glGetUniformLocation(shadowShaderProgram, "LightSpaceMatrix"),
-        1, GL_FALSE, glm::value_ptr(LightSpaceMatrix));
+    glUniformMatrix4fv(glGetUniformLocation(shadowShaderProgram, "LightSpaceMatrix"),1, GL_FALSE, glm::value_ptr(LightSpaceMatrix));
     drawModels(shadowShaderProgram);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
@@ -425,15 +405,14 @@ void renderWithShadows(unsigned int renderShadowProgram, std::vector<glm::mat4> 
     static const GLfloat bgd[] = { 0.f, 0.f, 0.f, 1.f };
     glClearBufferfv(GL_COLOR, 0, bgd);
     glClear(GL_DEPTH_BUFFER_BIT);
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     glUseProgram(renderShadowProgram);
 	updateLightUniforms(renderShadowProgram);
 
-    //int posLightIndex = 0;
-
-    for (int i = 0; i < lights.size(); i++) {
-        if (lights[i].type == DIRECTIONAL || lights[i].type == SPOT) {
+    for (int i = 0; i < lights.size(); i++) 
+    {
+        if (lights[i].type == DIRECTIONAL || lights[i].type == SPOT)
+        {
             glActiveTexture(GL_TEXTURE5 + i);
             glBindTexture(GL_TEXTURE_2D, lights[i].shadow.Texture);
             std::string uniformName = "shadowMaps[" + std::to_string(i) + "]";
@@ -441,12 +420,11 @@ void renderWithShadows(unsigned int renderShadowProgram, std::vector<glm::mat4> 
 
             // Pass the matrix to the shader
             std::string matrixUniformName = "lightSpaceMatrices[" + std::to_string(i) + "]";
-            glUniformMatrix4fv(glGetUniformLocation(renderShadowProgram, matrixUniformName.c_str()),
-                1, GL_FALSE, glm::value_ptr(lightSpaceMatrices[i]));
+            glUniformMatrix4fv(glGetUniformLocation(renderShadowProgram, matrixUniformName.c_str()),1, GL_FALSE, glm::value_ptr(lightSpaceMatrices[i]));
         }
         else if (lights[i].type == POSITIONAL)
         {
-            // Use texture unit 15 (or any safe starting point) + pointLightIndex
+            // Use texture unit 15 + pointLightIndex
             int textureUnit = 15 + i;
             glActiveTexture(GL_TEXTURE0 + textureUnit);
             glBindTexture(GL_TEXTURE_CUBE_MAP, lights[i].shadow.Texture);
@@ -454,24 +432,19 @@ void renderWithShadows(unsigned int renderShadowProgram, std::vector<glm::mat4> 
             std::string uniformName = "shadowCubeMaps[" + std::to_string(i) + "]";
             glUniform1i(glGetUniformLocation(renderShadowProgram, uniformName.c_str()), textureUnit);
 
-            // Also pass the position to an array
             std::string posUniformName = "pointLightPositions[" + std::to_string(i) + "]";
             glUniform3fv(glGetUniformLocation(renderShadowProgram, posUniformName.c_str()), 1, glm::value_ptr(lights[i].position));
-            //++posLightIndex;
         }
     }
 
     // Set up camera matrices
     glm::mat4 view = glm::lookAt(Camera.Position, Camera.Position + Camera.Front, Camera.Up);
-    glUniformMatrix4fv(glGetUniformLocation(renderShadowProgram, "view"),
-        1, GL_FALSE, glm::value_ptr(view));
+    glUniformMatrix4fv(glGetUniformLocation(renderShadowProgram, "view"),1, GL_FALSE, glm::value_ptr(view));
 
     glUniform1f(glGetUniformLocation(renderShadowProgram, "farPlane"), 25.0f);
 
-    glm::mat4 projection = glm::perspective(glm::radians(state.FOV),
-        (float)WIDTH / (float)HEIGHT, 0.01f, 100.f);
-    glUniformMatrix4fv(glGetUniformLocation(renderShadowProgram, "projection"),
-        1, GL_FALSE, glm::value_ptr(projection));
+    glm::mat4 projection = glm::perspective(glm::radians(state.FOV),(float)WIDTH / (float)HEIGHT, 0.01f, 100.f);
+    glUniformMatrix4fv(glGetUniformLocation(renderShadowProgram, "projection"),1, GL_FALSE, glm::value_ptr(projection));
 
     drawModels(renderShadowProgram);
 }
@@ -482,16 +455,20 @@ void mouseCallback(GLFWwindow* window, double xpos, double ypos)
 
     if (state->firstMouse)
     {
-        state->lastX = xpos;
+        state->lastX = xpos+600; // Not sure why but +600 stops the camera from spinning to the right when its first called
         state->lastY = ypos;
         state->firstMouse = false;
     }
 
+    // Calculate offset
     float xoffset = xpos - state->lastX;
     float yoffset = state->lastY - ypos; // Reversed since y-coordinates go from bottom to top
+
+    // Update last position
     state->lastX = xpos;
     state->lastY = ypos;
 
+    // Apply mouse movement to camera
     ProcessMouseMovement(Camera, xoffset, yoffset);
 }
 
@@ -578,13 +555,16 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
         int clickedModelIndex = -1;
 
         // Iterate through all models
-        for (int i = 0; i < models.size(); ++i) {
+        for (int i = 0; i < models.size(); ++i) 
+        {
             AABB worldAABB = calculateWorldAABB(models.at(i));
             float intersectionDist;
             // Check for intersection
-            if (intersectRayAABB(rayOrigin, rayDir, worldAABB, intersectionDist)) {
+            if (intersectRayAABB(rayOrigin, rayDir, worldAABB, intersectionDist)) 
+            {
                 // If this intersection is closer than the previous closest, update
-                if (intersectionDist < closestIntersection) {
+                if (intersectionDist < closestIntersection) 
+                {
                     closestIntersection = intersectionDist;
                     clickedModelIndex = i;
                 }
@@ -592,13 +572,13 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
         }
 
         // Output result
-        if (clickedModelIndex != -1) {
-            std::cout << "Clicked on model index: " << clickedModelIndex
-                << " at distance: " << closestIntersection << std::endl;
+        if (clickedModelIndex != -1) 
+        {
+            printf("Clicked on model index: %i at distance: %f\n", clickedModelIndex, closestIntersection);
             handleInteraction(clickedModelIndex, closestIntersection);
         }
         else {
-            std::cout << "Clicked on empty space." << std::endl;
+            printf("Clicked on empty space.\n");
         }
     }
 }
@@ -619,7 +599,7 @@ int main(int argc, char** argv)
     std::vector<glm::mat4> lightSpaceMatrices;
     std::vector<std::array<glm::mat4, 6>> cubeMapMatrices;
 
-    // Use state to store variables like FOV and booleans for crouch / flashlight
+    // Use state to store variables like FOV and booleans for crouch
     State state;
 
     glfwInit();
@@ -750,6 +730,7 @@ int main(int argc, char** argv)
     torus_red = addModel(transparent_torus_vertices, "../textures/red.png");
     torus_blue = addModel(transparent_torus_vertices, "../textures/blue.png");
 
+    // Manually set torus's opacity boolean
     models.at(torus_green).textures.hasOpacity = true;
     models.at(torus_red).textures.hasOpacity = true;
     models.at(torus_blue).textures.hasOpacity = true;
@@ -757,10 +738,12 @@ int main(int argc, char** argv)
     // Add light switch to the interactable list of models
     interactableObjects.push_back(light_switch);
 
+    // Make the textures smaller
     models.at(floor).textures.textureScale = 12.f;
     models.at(counter_top).textures.textureScale = 4.f;
     models.at(wall).textures.textureScale = 4.f;
 
+    // Setting transformations for models
     setTranformations(table, glm::vec3(5, 0, 0), glm::vec3(0), glm::vec3(0.0225f));
     setTranformations(chair, glm::vec3(7, 0, 0), glm::vec3(0, -90.f, 0), glm::vec3(0.002));
     setTranformations(floor, glm::vec3(0), glm::vec3(0), glm::vec3(100, 0.01, 100));
@@ -782,24 +765,19 @@ int main(int argc, char** argv)
     setTranformations(torus_blue, glm::vec3(5.1, 1.82, 0), glm::vec3(90, 0, 0), glm::vec3(0.15));
     setTranformations(torus_green, glm::vec3(5.1, 1.87, 0), glm::vec3(90,0,0), glm::vec3(0.115));
 
-
-
     // Initialise AABB
     for (auto& model : models)
         calculateAABB(model);
 
-    // Initialise the lights shadow maps
-    //lights[0].position = glm::vec3(2.f, 6.f, 7.f);
+    // Add lighting to the scene
     addDirectionalLight(glm::normalize(glm::vec3(0.01f, -1.0f, -0.01f)), glm::vec3(1), 0.3f);
     addSpotLight(glm::vec3(0.001, -0.99, 0.001), glm::vec3(0, 6.95f, -2.5), rgb2vec(255, 212, 226), 1.f);
     addSpotLight(glm::vec3(0.001, -0.99, 0.001), glm::vec3(0, 6.95f, 5), rgb2vec(210, 230, 255), 1.f);
+
     addPositionalLight(glm::vec3(5, 6, 0), rgb2vec(255,223,142) , 1.f);
-    //addPositionalLight(glm::vec3(-5, 0, 0), BLUE, 1.f);
-    //addPositionalLight(glm::vec3(0, 0, -5), GREEN, 1.f);
     // Reserve memory for each light
     cubeMapMatrices.reserve(lights.size());
     lightSpaceMatrices.reserve(lights.size());
-    printf("Lights size: %d\n", lights.size());
 
     GLuint program = CompileShader("pbr.vert", "pbr.frag");
     GLuint shadow_program = CompileShader("shadow.vert", "shadow.frag");
@@ -813,21 +791,6 @@ int main(int argc, char** argv)
     // Initialising buffers
     for (auto& model : models)
         initialiseBuffers(model.vertices, model.bufferIndex);
-    /*initialiseBuffers(models.at(table).vertices, models.at(table).bufferIndex);
-    initialiseBuffers(models.at(chair).vertices, models.at(chair).bufferIndex);
-    initialiseBuffers(models.at(floor).vertices, models.at(floor).bufferIndex);
-    initialiseBuffers(models.at(counter_table).vertices, models.at(counter_table).bufferIndex);
-    initialiseBuffers(models.at(counter_top).vertices, models.at(counter_top).bufferIndex);
-    initialiseBuffers(models.at(wall).vertices, models.at(wall).bufferIndex);
-    initialiseBuffers(models.at(grinder).vertices, models.at(grinder).bufferIndex);
-    initialiseBuffers(models.at(coffee_machine).vertices, models.at(coffee_machine).bufferIndex);
-    initialiseBuffers(models.at(shelf).vertices, models.at(shelf).bufferIndex);
-    initialiseBuffers(models.at(coffee_bag).vertices, models.at(coffee_bag).bufferIndex);
-    initialiseBuffers(models.at(light_bulb).vertices, models.at(light_bulb).bufferIndex);
-    initialiseBuffers(models.at(light_fixture).vertices, models.at(light_fixture).bufferIndex);
-    initialiseBuffers(models.at(light_switch).vertices, models.at(light_switch).bufferIndex);
-    initialiseBuffers(models.at(torus).vertices, models.at(torus).bufferIndex);*/
-
 
     int duplicateID;
 	duplicateID = duplicateModel(chair);
@@ -887,8 +850,12 @@ int main(int argc, char** argv)
             std::string posX = std::to_string(Camera.Position.x);
             std::string posY = std::to_string(Camera.Position.y);
             std::string posZ = std::to_string(Camera.Position.z);
+            std::string dirX = std::to_string(Camera.Front.x).substr(0, 5);
+            std::string dirY = std::to_string(Camera.Front.y).substr(0, 5);
+            std::string dirZ = std::to_string(Camera.Front.z).substr(0, 5);
+
             std::string newTitle = "Coffee Shop Scene - " + fpsString + "FPS / " + msString.substr(0, 5) + "ms" +
-                "\t\t\t" + "X: " + posX + " Y: " + posY + " Z: " + posZ +"\t\t" + +" seconds: "+time;
+                "\t" + "Pos: X: " + posX + " Y: " + posY + " Z: " + posZ + "\tLook: " + "X: " + dirX + " Y: " + dirY + " Z: " + dirZ +"\t" + +" seconds: "+time;
             glfwSetWindowTitle(window, newTitle.c_str());
 
             // Reset FPS counter variables

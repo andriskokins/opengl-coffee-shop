@@ -36,8 +36,8 @@ struct SCamera
 
 void InitCamera(SCamera& in)
 {
-    in.Front = glm::vec3(0.0f, 0.0f, -1.0f);
-    in.Position = glm::vec3(0.0f, 0.0f, 10.0f); // Starting position
+    in.Front = glm::vec3(-0.85f, 0.0f, -0.5f);
+    in.Position = glm::vec3(14.f, 2.5f, 10.0f); // Starting position
     in.Up = glm::vec3(0.0f, 1.0f, 0.0f);
     in.WorldUp = in.Up;
     in.Right = glm::normalize(glm::cross(in.Front, in.WorldUp));
@@ -47,7 +47,7 @@ void InitCamera(SCamera& in)
 }
 
 // Process mouse movement to change camera orientation
-void ProcessMouseMovement(SCamera& in, float xoffset, float yoffset, bool constrainPitch = true)
+void ProcessMouseMovement(SCamera& in, float xoffset, float yoffset)
 {
     xoffset *= in.MouseSensitivity;
     yoffset *= in.MouseSensitivity;
