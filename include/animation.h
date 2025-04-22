@@ -76,6 +76,12 @@ int createAnimation(int model, float duration, float delay, glm::vec3 endPos, gl
 	anim.pathPoints = ctrl_points;
 
 	animations.push_back(anim);
+
+	printf("Animation: Added animation for model %i\n", anim.model);
+	printf("Animation: Start pos: x:%.2f y:%2.f z:%2.f\n", anim.startPosition.x, anim.startPosition.y, anim.startPosition.z);
+	printf("Animation: End pos: x:%2.f y:%2.f z:%2.f\n", anim.endPosition.x, anim.endPosition.y, anim.endPosition.z);
+	printf("Animation: Start time:%2.f Duration time:%2.f\n", anim.delay, anim.duration);
+
 	return animations.size() - 1;
 }
 
@@ -103,6 +109,7 @@ void updateAnimations(float deltaTime)
 			if (anim.delayTimer >= anim.delay) {
 				activeAnimation = true;
 				anim.hasStarted = true;
+				printf("Animation: Started animation for model %i\n", anim.model);
 			}
 			else {
 				continue; // Skip this frame if still in delay period

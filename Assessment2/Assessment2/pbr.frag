@@ -1,7 +1,17 @@
 #version 450 core
 
+#define HASHSCALE3 vec3(.1031, .1030, .0973)
+
 const float PI = 3.14159265359;
 const int MAX_LIGHTS = 7;
+
+layout (location = 0) out vec4 fColour;
+
+in vec4 col;
+in vec3 nor;
+in vec3 FragPosWorldSpace;
+in vec4 FragPosLightSpace[MAX_LIGHTS];
+in vec2 TexCoords;
 
 // Light type constants
 const int DIRECTIONAL_LIGHT = 0;
@@ -14,31 +24,21 @@ struct Light {
     int type;               // 0=directional, 1=point, 2=spot
     vec3 position;          // Used for point and spot lights
     vec3 direction;         // Used for directional and spot lights
-    vec3 colour;            // Light color
+    vec3 colour;            // Light colour
     float intensity;        // Light intensity multiplier
 };
 
 // Uniforms for lights
 uniform Light lights[MAX_LIGHTS];
-uniform int numLights;      // Actual number of lights being used
+uniform int numLights;      // Actual number of lights
 
-layout (location = 0) out vec4 fColour;
-
-in vec4 col;
-in vec3 nor;
-in vec3 FragPosWorldSpace;
-in vec4 FragPosLightSpace[MAX_LIGHTS];
-in vec2 TexCoords;
-
-uniform vec3 camPos;
-uniform bool hasOpacity;
 uniform sampler2D shadowMaps[MAX_LIGHTS];
-// Change from single cubemap to array
-uniform samplerCube shadowCubeMaps[MAX_LIGHTS]; // Replace shadowCubeMap
-uniform vec3 pointLightPositions[MAX_LIGHTS];   // Replace pointLightPos
+uniform samplerCube shadowCubeMaps[MAX_LIGHTS];
+uniform vec3 pointLightPositions[MAX_LIGHTS];
 uniform mat4 lightSpaceMatrices[MAX_LIGHTS];
 uniform float farPlane;
 uniform float textureScale;
+uniform vec3 camPos;
 
 // material parameters
 uniform sampler2D albedoMap;
@@ -92,8 +92,11 @@ void main()
     vec3 Lo = vec3(0.0);
     
     // Process all lights
-    for(int i = 0; i < numLights; i++) {
-        Lo += calculatePBR(lights[i], N, V, F0, i);
+    for(int i = 0; i < numLights; i++) 
+    {
+        // Call only if light is switched on
+        if(lights[i].isOn)
+            Lo += calculatePBR(lights[i], N, V, F0, i);
     }
     
     vec3 color = ambient + Lo;
@@ -103,14 +106,13 @@ void main()
     // gamma correction
     color = pow(color, vec3(1.0/2.2));  
     
+    // use alpha value from colour input
     fColour = vec4(color, col.w);
 }
 
+// Main source for physical based lighting - https://learnopengl.com/PBR/Lighting
 vec3 calculatePBR(Light light, vec3 N, vec3 V, vec3 F0, int lightIndex)
 {
-    if (!(light.isOn))
-        return vec3(0);
-
     vec3 L;
     float attenuation = 1.0;
     float constant = 1.0, linear = 0.09, quadratic = 0.032, cutOff, outerCutOff;
@@ -152,7 +154,7 @@ vec3 calculatePBR(Light light, vec3 N, vec3 V, vec3 F0, int lightIndex)
         shadow = shadowCubeMapOnFragment(light, lightIndex);
     }
     
-    // If completely in shadow, only return ambient contribution (which is handled in main())
+    // If completely in shadow, only return ambient contribution
     if(shadow >= 0.99) return vec3(0.0);
     
     // Rest of your PBR calculation remains the same
@@ -238,6 +240,16 @@ vec3 getNormalFromMap()
     return normalize(TBN * tangentNormal);
 }
 
+
+// Source - https://www.shadertoy.com/view/lldyDn
+vec2 hash2d(vec2 p)
+{
+	vec3 p3 = fract(vec3(p.xyx) * HASHSCALE3);
+    p3 += dot(p3, p3.yzx+19.19);
+    return fract((p3.xx+p3.yz)*p3.zy);
+}
+
+// Main source for spot light shadows - https://www.youtube.com/watch?v=Q8w_z2Ye-Go&t=31s
 float shadowOnFragment(vec4 fragPosLightSpace, int lightIndex)
 {
     Light light = lights[lightIndex];
@@ -256,26 +268,36 @@ float shadowOnFragment(vec4 fragPosLightSpace, int lightIndex)
     float bias;
     if(light.type == SPOT_LIGHT)
     {
-        bias = max(0.0025f * (1.0 - dot(normal, lightDir)), 0.00005f); // smaller bias for spot light since it has more accurate shadow maps
+        bias = max(0.0025f * (1.f - dot(normal, lightDir)), 0.00045f);
     } else
         bias = max(0.0025f * (1.f - dot(normal, lightDir)), 0.0005f);
     
     float shadow = 0.0;
     vec2 texelSize = 1.0 / textureSize(shadowMaps[lightIndex], 0);
     
-    for(int x = -1; x <= 1; ++x)
-    {
-        for(int y = -1; y <= 1; ++y)
-        {
-            float pcfDepth = texture(shadowMaps[lightIndex], projCoords.xy + vec2(x, y) * texelSize).r; 
-            shadow += currentDepth - bias > pcfDepth  ? 1.0 : 0.0;        
-        }    
+    // Generate a per-fragment random offset to jitter the sampling pattern
+    // Source - https://www.youtube.com/watch?v=uueB2kVvbHo&t=262s
+    vec2 randomOffset = hash2d(gl_FragCoord.xy) * texelSize * 0.5;
+    
+    // PCF with jittered samples for better quality
+    const int PCF_SAMPLES = 9; // 3x3 grid
+    for(int i = 0; i < PCF_SAMPLES; i++) {
+        // Calculate grid position
+        int x = i % 3 - 1;
+        int y = i / 3 - 1;
+        
+        // Add random offset to break grid pattern
+        vec2 offset = vec2(x, y) * texelSize + randomOffset;
+        
+        float pcfDepth = texture(shadowMaps[lightIndex], projCoords.xy + offset).r;
+        shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;
     }
-
-    return shadow /= 9.0;
+    
+    return shadow / float(PCF_SAMPLES);
 }
 
-// Updated to use lightIndex for shadow cube map texture
+// Source for positional light shadows - https://www.youtube.com/watch?v=Q8w_z2Ye-Go&t=157s
+// shadowCubeMap.frag, shadowCubeMap.vert and shadowCubeMap.geom all based on the same video from @Victor Gordan on YouTube
 float shadowCubeMapOnFragment(Light light, int lightIndex)
 {
     float shadow = 0.0;
@@ -286,6 +308,7 @@ float shadowCubeMapOnFragment(Light light, int lightIndex)
     vec3 lightDir = normalize(fragToLight);
     float bias = max(0.5 * (1.0 - dot(normal, lightDir)), 0.0005);
     
+    // Point light shadow PCF technique source - https://learnopengl.com/Advanced-Lighting/Shadows/Point-Shadows
     int samples = 20;
     float viewDistance = length(camPos - FragPosWorldSpace);
     float diskRadius = (1.0 + (viewDistance / farPlane)) / 25.0;

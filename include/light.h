@@ -40,7 +40,7 @@ void addDirectionalLight(glm::vec3 direction, glm::vec3 colour, float intensity)
     directionalLight.shadow = setup_shadowmap(SH_MAP_WIDTH, SH_MAP_HEIGHT);
 
     lights.push_back(directionalLight);
-    printf("Success: added directional light\n");
+    printf("Light: added directional light\n");
 }
 
 void addPositionalLight(glm::vec3 position, glm::vec3 colour, float intensity)
@@ -53,7 +53,7 @@ void addPositionalLight(glm::vec3 position, glm::vec3 colour, float intensity)
     positionalLight.shadow = setup_shadow_cubemap(SH_MAP_WIDTH, SH_MAP_HEIGHT);
 
     lights.push_back(positionalLight);
-    printf("Success: added positional light\n");
+    printf("Light: added positional light\n");
 }
 
 void addSpotLight(glm::vec3 direction, glm::vec3 position, glm::vec3 colour, float intensity)
@@ -67,7 +67,7 @@ void addSpotLight(glm::vec3 direction, glm::vec3 position, glm::vec3 colour, flo
     spotLight.shadow = setup_shadowmap(SH_MAP_WIDTH, SH_MAP_HEIGHT);
 
     lights.push_back(spotLight);
-    printf("Success: added spot light\n");
+    printf("Light: added spot light\n");
 }
 
 std::vector<Light> getLights()

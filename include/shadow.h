@@ -27,20 +27,15 @@ ShadowStruct setup_shadowmap(int w, int h)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 	float borderColour[] = { 1.f, 1.f, 1.f, 1.f };
-	glTextureParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColour);
+	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColour);
 	glBindFramebuffer(GL_FRAMEBUFFER, shadow.FBO);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadow.Texture, 0);
 	glDrawBuffer(GL_NONE);
 	glReadBuffer(GL_NONE);
 
-	GLenum Status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-	if (Status != GL_FRAMEBUFFER_COMPLETE)
-	{
-		printf("FB error, status: 0x%x\n", Status);
-	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	printf("Success: Shadow map setup\n");
+	printf("Shadow: shadow map setup\n");
 	return shadow;
 }
 
@@ -71,11 +66,9 @@ ShadowStruct setup_shadow_cubemap(unsigned int width, unsigned int height)
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
     
-    // Attach to framebuffer - note we use glFramebufferTexture, not glFramebufferTexture2D
     glBindFramebuffer(GL_FRAMEBUFFER, shadow.FBO);
     glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, shadow.Texture, 0);
     
-    // Tell OpenGL we're not using color attachments
     glDrawBuffer(GL_NONE);
     glReadBuffer(GL_NONE);
     
@@ -87,7 +80,7 @@ ShadowStruct setup_shadow_cubemap(unsigned int width, unsigned int height)
     // Unbind framebuffer
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     
-	printf("Success: Shadow cube map setup\n");
+	printf("Shadow: Shadow cube map setup\n");
 	return shadow;
 }
 

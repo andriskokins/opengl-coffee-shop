@@ -15,7 +15,7 @@ void calculateAABB(model& m)
         m.aabb.min = glm::min(m.aabb.min, pos);
         m.aabb.max = glm::max(m.aabb.max, pos);
     }
-    printf("Collision : Successfully calculated local AABB for %d\n", m.bufferIndex);
+    printf("Collision: Successfully calculated local AABB for %d\n", m.bufferIndex);
 }
 
 AABB calculateWorldAABB(model& m)

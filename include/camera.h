@@ -1,6 +1,5 @@
 #pragma once
 
-#include <stdio.h>
 #include <glm/glm.hpp>
 
 #define BASE_SPEED 5.f

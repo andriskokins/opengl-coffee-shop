@@ -911,7 +911,7 @@ int main(int argc, char** argv)
 	        		generateCubeMap(shadow_cubemap_program, lights[i].shadow, cubeMapMatrices[i].data(), far_plane, i);
 	        		//++posLightIndex;
 	        	}
-                lights[i].shadow.updateShadow = false; // Stop the shadow map updating every 
+                lights[i].shadow.updateShadow = false; // Stop the shadow map updating every frame
 	        }
         }
 

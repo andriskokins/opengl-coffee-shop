@@ -125,7 +125,7 @@ int obj_parse(const char* filename, std::vector<triangle>* io_tris)
         io_tris->push_back(tri);
     }
 
-    printf("successfully parsed %s and read %d triangles \n", filename, (int)io_tris->size());
+    printf("Model loader: Successfully loaded %s and read %d triangles \n", filename, (int)io_tris->size());
     return 0;
 }
 
