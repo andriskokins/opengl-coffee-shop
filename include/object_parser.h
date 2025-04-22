@@ -24,7 +24,7 @@ float depth_buffer[PIXEL_W * PIXEL_H];
 struct vertex
 {
     glm::vec4 pos;
-    glm::vec3 col;
+    glm::vec4 col;
     glm::vec3 nor;
     glm::vec2 tex;
 };
@@ -99,11 +99,12 @@ int obj_parse(const char* filename, std::vector<triangle>* io_tris)
                 vert.col = {
                     attrib.colors[3 * index.vertex_index + 0],
                     attrib.colors[3 * index.vertex_index + 1],
-                    attrib.colors[3 * index.vertex_index + 2]
+                    attrib.colors[3 * index.vertex_index + 2],
+                    1.f
                 };
             }
             else {
-                vert.col = { 1, 1, 1 };
+                vert.col = { 1, 1, 1 , 1};
             }
 
             vertices.push_back(vert);
@@ -130,8 +131,8 @@ int obj_parse(const char* filename, std::vector<triangle>* io_tris)
 
 std::vector<float> triangleToVertices(std::vector<triangle>& triangles)
 {
-    // Each vertex contains: 3 floats (position) + 3 floats (color) + 3 floats (normal) + 2 floats (texture) = 11 floats per vertex.
-    size_t floatsPerVertex = 11;
+    // Each vertex contains: 3 floats (position) + 3 floats (color) + 1 (alpha) + 3 floats (normal) + 2 floats (texture) = 12 floats per vertex.
+    size_t floatsPerVertex = 12;
     size_t floatsPerTriangle = 3 * floatsPerVertex;
     std::vector<float> vertices;
     vertices.reserve(triangles.size() * floatsPerTriangle);
@@ -146,6 +147,7 @@ std::vector<float> triangleToVertices(std::vector<triangle>& triangles)
             vertices.push_back(vert.col.x);
             vertices.push_back(vert.col.y);
             vertices.push_back(vert.col.z);
+            vertices.push_back(vert.col.w);
             // Normal
             vertices.push_back(vert.nor.x);
             vertices.push_back(vert.nor.y);

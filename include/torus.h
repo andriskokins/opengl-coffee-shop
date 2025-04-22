@@ -2,18 +2,17 @@
 
 #define _USE_MATH_DEFINES
 #include <cmath>
-#include <iostream>
 #include <vector>
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
 
-std::vector<float> generateTorus(float majorRadius, float minorRadius, int majorSegments, int minorSegments)
+std::vector<float> generateTorus(float majorRadius, float minorRadius, int majorSegments, int minorSegments, float opacity)
 {
     std::vector<float> vertices;
-    // Each triangle needs 3 vertices, each vertex has 11 floats, and each grid cell has 2 triangles
-    vertices.reserve(majorSegments * minorSegments * 2 * 3 * 11);
+    // Each triangle needs 3 vertices, each vertex has 12 floats, and each grid cell has 2 triangles
+    vertices.reserve(majorSegments * minorSegments * 2 * 3 * 12);
 
     float sectorStep = 2 * M_PI / majorSegments;
     float sideStep = 2 * M_PI / minorSegments;
@@ -38,8 +37,9 @@ std::vector<float> generateTorus(float majorRadius, float minorRadius, int major
             //  i--i+1
 
             // Helper function to generate a vertex
-            auto generateVertex = [majorRadius, minorRadius, &vertices](float sideA, float sectorA) {
-                float r = 1.0f, g = 1.0f, b = 1.0f; // color
+            auto generateVertex = [majorRadius, minorRadius, &vertices, opacity](float sideA, float sectorA) {
+                float r = 1.0f, g = 1.0f, b = 1.0f; // colour
+                float a = opacity; // alpha
                 float xy = minorRadius * cosf(sideA);
                 float z = minorRadius * sinf(sideA);
 
@@ -57,7 +57,7 @@ std::vector<float> generateTorus(float majorRadius, float minorRadius, int major
                 float s = sectorA / (2 * M_PI);
                 float t = sideA / (2 * M_PI);
 
-                vertices.insert(vertices.end(), { x, y, z, r, g, b, nx, ny, nz, s, t });
+                vertices.insert(vertices.end(), { x, y, z, r, g, b, a, nx, ny, nz, s, t });
                 };
 
             // Triangle 1: (i,j) -> (i+1,j) -> (i,j+1)

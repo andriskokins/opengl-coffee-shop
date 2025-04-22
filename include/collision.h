@@ -8,8 +8,8 @@ void calculateAABB(model& m)
 {
     m.aabb.min = glm::vec3(std::numeric_limits<float>::max());
     m.aabb.max = glm::vec3(std::numeric_limits<float>::lowest());
-    // Stride is 11 floats: pos(3), col(3), norm(3), tex(2)
-    for (int i = 0; i < m.vertices.size(); i += 11)
+    // Stride is 11 floats: pos(3), col(3), alpha(1), norm(3), tex(2)
+    for (int i = 0; i < m.vertices.size(); i += 12)
     {
         glm::vec3 pos(m.vertices[i], m.vertices[i + 1], m.vertices[i + 2]);
         m.aabb.min = glm::min(m.aabb.min, pos);

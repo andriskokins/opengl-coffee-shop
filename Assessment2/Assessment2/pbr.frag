@@ -103,7 +103,7 @@ void main()
     // gamma correction
     color = pow(color, vec3(1.0/2.2));  
     
-    fColour = vec4(color, 1.0);
+    fColour = vec4(color, col.w);
 }
 
 vec3 calculatePBR(Light light, vec3 N, vec3 V, vec3 F0, int lightIndex)

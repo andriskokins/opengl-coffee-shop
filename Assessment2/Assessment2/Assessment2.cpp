@@ -30,57 +30,57 @@ std::vector<int> interactableObjects;
 std::vector<float> cube_vertices =
 {
     // back face
-    // pos                // col                // normal          // texcoords
-    -0.5f, -0.5f, -0.5f,  1.f, 1.f, 1.f,   0.f, 0.f, -1.f,    0.0f, 0.0f,
-     0.5f, -0.5f, -0.5f,  1.f, 1.f, 1.f,   0.f, 0.f, -1.f,    1.0f, 0.0f,
-     0.5f,  0.5f, -0.5f,  1.f, 1.f, 1.f,   0.f, 0.f, -1.f,    1.0f, 1.0f,
-     0.5f,  0.5f, -0.5f,  1.f, 1.f, 1.f,   0.f, 0.f, -1.f,    1.0f, 1.0f,
-    -0.5f,  0.5f, -0.5f,  1.f, 1.f, 1.f,   0.f, 0.f, -1.f,    0.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f,  1.f, 1.f, 1.f,   0.f, 0.f, -1.f,    0.0f, 0.0f,
+    // pos                // col + alpha       // normal          // texcoords
+    -0.5f, -0.5f, -0.5f,  1.f, 1.f, 1.f, 1.f,  0.f, 0.f, -1.f,    0.0f, 0.0f,
+     0.5f, -0.5f, -0.5f,  1.f, 1.f, 1.f, 1.f,  0.f, 0.f, -1.f,    1.0f, 0.0f,
+     0.5f,  0.5f, -0.5f,  1.f, 1.f, 1.f, 1.f,  0.f, 0.f, -1.f,    1.0f, 1.0f,
+     0.5f,  0.5f, -0.5f,  1.f, 1.f, 1.f, 1.f,  0.f, 0.f, -1.f,    1.0f, 1.0f,
+    -0.5f,  0.5f, -0.5f,  1.f, 1.f, 1.f, 1.f,  0.f, 0.f, -1.f,    0.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,  1.f, 1.f, 1.f, 1.f,  0.f, 0.f, -1.f,    0.0f, 0.0f,
 
     // front face
-    -0.5f, -0.5f,  0.5f,  1.f, 1.f, 1.f,   0.f, 0.f, 1.f,     0.0f, 0.0f,
-     0.5f, -0.5f,  0.5f,  1.f, 1.f, 1.f,   0.f, 0.f, 1.f,     1.0f, 0.0f,
-     0.5f,  0.5f,  0.5f,  1.f, 1.f, 1.f,   0.f, 0.f, 1.f,     1.0f, 1.0f,
-     0.5f,  0.5f,  0.5f,  1.f, 1.f, 1.f,   0.f, 0.f, 1.f,     1.0f, 1.0f,
-    -0.5f,  0.5f,  0.5f,  1.f, 1.f, 1.f,   0.f, 0.f, 1.f,     0.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f,  1.f, 1.f, 1.f,   0.f, 0.f, 1.f,     0.0f, 0.0f,
+    -0.5f, -0.5f,  0.5f,  1.f, 1.f, 1.f, 1.f,  0.f, 0.f, 1.f,     0.0f, 0.0f,
+     0.5f, -0.5f,  0.5f,  1.f, 1.f, 1.f, 1.f,  0.f, 0.f, 1.f,     1.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  1.f, 1.f, 1.f, 1.f,  0.f, 0.f, 1.f,     1.0f, 1.0f,
+     0.5f,  0.5f,  0.5f,  1.f, 1.f, 1.f, 1.f,  0.f, 0.f, 1.f,     1.0f, 1.0f,
+    -0.5f,  0.5f,  0.5f,  1.f, 1.f, 1.f, 1.f,  0.f, 0.f, 1.f,     0.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f,  1.f, 1.f, 1.f, 1.f,  0.f, 0.f, 1.f,     0.0f, 0.0f,
 
     // left face
-    -0.5f,  0.5f,  0.5f,  1.f, 1.f, 1.f,  -1.f, 0.f, 0.f,     0.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f,  1.f, 1.f, 1.f,  -1.f, 0.f, 0.f,     1.0f, 0.0f,
-    -0.5f, -0.5f, -0.5f,  1.f, 1.f, 1.f,  -1.f, 0.f, 0.f,     1.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f,  1.f, 1.f, 1.f,  -1.f, 0.f, 0.f,     1.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f,  1.f, 1.f, 1.f,  -1.f, 0.f, 0.f,     0.0f, 1.0f,
-    -0.5f,  0.5f,  0.5f,  1.f, 1.f, 1.f,  -1.f, 0.f, 0.f,     0.0f, 0.0f,
+    -0.5f,  0.5f,  0.5f,  1.f, 1.f, 1.f, 1.f, -1.f, 0.f, 0.f,     0.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f,  1.f, 1.f, 1.f, 1.f, -1.f, 0.f, 0.f,     1.0f, 0.0f,
+    -0.5f, -0.5f, -0.5f,  1.f, 1.f, 1.f, 1.f, -1.f, 0.f, 0.f,     1.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,  1.f, 1.f, 1.f, 1.f, -1.f, 0.f, 0.f,     1.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f,  1.f, 1.f, 1.f, 1.f, -1.f, 0.f, 0.f,     0.0f, 1.0f,
+    -0.5f,  0.5f,  0.5f,  1.f, 1.f, 1.f, 1.f, -1.f, 0.f, 0.f,     0.0f, 0.0f,
 
     // right face
-     0.5f,  0.5f,  0.5f,  1.f, 1.f, 1.f,  1.f, 0.f, 0.f,     0.0f, 0.0f,
-     0.5f,  0.5f, -0.5f,  1.f, 1.f, 1.f,  1.f, 0.f, 0.f,     1.0f, 0.0f,
-     0.5f, -0.5f, -0.5f,  1.f, 1.f, 1.f,  1.f, 0.f, 0.f,     1.0f, 1.0f,
-     0.5f, -0.5f, -0.5f,  1.f, 1.f, 1.f,  1.f, 0.f, 0.f,     1.0f, 1.0f,
-     0.5f, -0.5f,  0.5f,  1.f, 1.f, 1.f,  1.f, 0.f, 0.f,     0.0f, 1.0f,
-     0.5f,  0.5f,  0.5f,  1.f, 1.f, 1.f,  1.f, 0.f, 0.f,     0.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  1.f, 1.f, 1.f, 1.f,  1.f, 0.f, 0.f,     0.0f, 0.0f,
+     0.5f,  0.5f, -0.5f,  1.f, 1.f, 1.f, 1.f,  1.f, 0.f, 0.f,     1.0f, 0.0f,
+     0.5f, -0.5f, -0.5f,  1.f, 1.f, 1.f, 1.f,  1.f, 0.f, 0.f,     1.0f, 1.0f,
+     0.5f, -0.5f, -0.5f,  1.f, 1.f, 1.f, 1.f,  1.f, 0.f, 0.f,     1.0f, 1.0f,
+     0.5f, -0.5f,  0.5f,  1.f, 1.f, 1.f, 1.f,  1.f, 0.f, 0.f,     0.0f, 1.0f,
+     0.5f,  0.5f,  0.5f,  1.f, 1.f, 1.f, 1.f,  1.f, 0.f, 0.f,     0.0f, 0.0f,
 
      // bottom face
-     -0.5f, -0.5f, -0.5f,  1.f, 1.f, 1.f,  0.f, -1.f, 0.f,    0.0f, 0.0f,
-      0.5f, -0.5f, -0.5f,  1.f, 1.f, 1.f,  0.f, -1.f, 0.f,    1.0f, 0.0f,
-      0.5f, -0.5f,  0.5f,  1.f, 1.f, 1.f,  0.f, -1.f, 0.f,    1.0f, 1.0f,
-      0.5f, -0.5f,  0.5f,  1.f, 1.f, 1.f,  0.f, -1.f, 0.f,    1.0f, 1.0f,
-     -0.5f, -0.5f,  0.5f,  1.f, 1.f, 1.f,  0.f, -1.f, 0.f,    0.0f, 1.0f,
-     -0.5f, -0.5f, -0.5f,  1.f, 1.f, 1.f,  0.f, -1.f, 0.f,    0.0f, 0.0f,
+     -0.5f, -0.5f, -0.5f,  1.f, 1.f, 1.f, 1.f, 0.f, -1.f, 0.f,    0.0f, 0.0f,
+      0.5f, -0.5f, -0.5f,  1.f, 1.f, 1.f, 1.f, 0.f, -1.f, 0.f,    1.0f, 0.0f,
+      0.5f, -0.5f,  0.5f,  1.f, 1.f, 1.f, 1.f, 0.f, -1.f, 0.f,    1.0f, 1.0f,
+      0.5f, -0.5f,  0.5f,  1.f, 1.f, 1.f, 1.f, 0.f, -1.f, 0.f,    1.0f, 1.0f,
+     -0.5f, -0.5f,  0.5f,  1.f, 1.f, 1.f, 1.f, 0.f, -1.f, 0.f,    0.0f, 1.0f,
+     -0.5f, -0.5f, -0.5f,  1.f, 1.f, 1.f, 1.f, 0.f, -1.f, 0.f,    0.0f, 0.0f,
 
      // top face
-     -0.5f,  0.5f, -0.5f,  1.f, 1.f, 1.f,  0.f, 1.f, 0.f,     0.0f, 0.0f,
-      0.5f,  0.5f, -0.5f,  1.f, 1.f, 1.f,  0.f, 1.f, 0.f,     1.0f, 0.0f,
-      0.5f,  0.5f,  0.5f,  1.f, 1.f, 1.f,  0.f, 1.f, 0.f,     1.0f, 1.0f,
-      0.5f,  0.5f,  0.5f,  1.f, 1.f, 1.f,  0.f, 1.f, 0.f,     1.0f, 1.0f,
-     -0.5f,  0.5f,  0.5f,  1.f, 1.f, 1.f,  0.f, 1.f, 0.f,     0.0f, 1.0f,
-     -0.5f,  0.5f, -0.5f,  1.f, 1.f, 1.f,  0.f, 1.f, 0.f,     0.0f, 0.0f
+     -0.5f,  0.5f, -0.5f,  1.f, 1.f, 1.f, 1.f, 0.f, 1.f, 0.f,     0.0f, 0.0f,
+      0.5f,  0.5f, -0.5f,  1.f, 1.f, 1.f, 1.f, 0.f, 1.f, 0.f,     1.0f, 0.0f,
+      0.5f,  0.5f,  0.5f,  1.f, 1.f, 1.f, 1.f, 0.f, 1.f, 0.f,     1.0f, 1.0f,
+      0.5f,  0.5f,  0.5f,  1.f, 1.f, 1.f, 1.f, 0.f, 1.f, 0.f,     1.0f, 1.0f,
+     -0.5f,  0.5f,  0.5f,  1.f, 1.f, 1.f, 1.f,  0.f, 1.f, 0.f,    0.0f, 1.0f,
+     -0.5f,  0.5f, -0.5f,  1.f, 1.f, 1.f, 1.f, 0.f, 1.f, 0.f,     0.0f, 0.0f
 };
 
-#define NUM_BUFFERS 17
-#define NUM_VAOS 17
+#define NUM_BUFFERS 20
+#define NUM_VAOS 20
 GLuint Buffers[NUM_BUFFERS];
 GLuint VAOs[NUM_VAOS];
 
@@ -119,6 +119,11 @@ void drawModels(unsigned int program)
 
     for (model obj : models)
     {
+	    if (obj.textures.hasOpacity)
+	    {
+            continue; // skip transparent
+	    }
+
         glBindVertexArray(VAOs[obj.bufferIndex]);
 
         glUniform1f(glGetUniformLocation(program, "textureScale"), obj.textures.textureScale);
@@ -176,10 +181,94 @@ void drawModels(unsigned int program)
         glUniformMatrix4fv(glGetUniformLocation(program, "model"), 1, GL_FALSE, glm::value_ptr(model));
 
         // Draw the triangles
-        // position (3), colour (3), normal (3), and texcoords (2) = 11 floats per vertex
+        // position (3), colour (3), normal (3), alpha (1), and texcoords (2) = 12 floats per vertex
         // length of vertices divided by floats per vertex gives number of vertices per object
-        glDrawArrays(GL_TRIANGLES, 0, obj.vertices.size() / 11);
+        glDrawArrays(GL_TRIANGLES, 0, obj.vertices.size() / 12);
     }
+
+    std::vector<std::pair<float, int>> sortedTransparentModels;
+    for (int i = 0; i < models.size(); i++)
+    {
+        if (models[i].textures.hasOpacity) {
+            // Calculate world AABB center
+            AABB worldAABB = calculateWorldAABB(models[i]); // Assuming you have this function
+            glm::vec3 center = (worldAABB.min + worldAABB.max) * 0.5f;
+            float distance = glm::length(Camera.Position - center); // Use center distance
+            sortedTransparentModels.push_back(std::make_pair(-distance, i));
+        }
+    }
+
+    std::sort(sortedTransparentModels.begin(), sortedTransparentModels.end());
+
+    glDepthMask(GL_FALSE); // Disable depth writing for transparent objects
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // Standard transparency blending
+    for (auto& pair : sortedTransparentModels)
+    {
+        model& obj = models[pair.second];
+        glBindVertexArray(VAOs[obj.bufferIndex]);
+
+        glUniform1f(glGetUniformLocation(program, "textureScale"), obj.textures.textureScale);
+
+        // Bind the texture to unit 0
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, obj.textures.albedo);
+        glUniform1i(glGetUniformLocation(program, "albedoMap"), 0);
+
+        // Bind roughness if available, otherwise use a default value
+        glActiveTexture(GL_TEXTURE1);
+        if (obj.textures.hasRoughness)
+        {
+            glBindTexture(GL_TEXTURE_2D, obj.textures.roughness);
+        }
+        else glBindTexture(GL_TEXTURE_2D, 0);
+        glUniform1i(glGetUniformLocation(program, "roughnessMap"), 1);
+
+        // Bind metallic if available, otherwise use a default value
+        glActiveTexture(GL_TEXTURE2);
+        if (obj.textures.hasMetallic)
+        {
+            glBindTexture(GL_TEXTURE_2D, obj.textures.metallic);
+        }
+        else glBindTexture(GL_TEXTURE_2D, 0);
+        glUniform1i(glGetUniformLocation(program, "metallicMap"), 2);
+
+        // Bind normal if available, otherwise use a default value
+        glActiveTexture(GL_TEXTURE3);
+        if (obj.textures.hasNormal)
+        {
+            glBindTexture(GL_TEXTURE_2D, obj.textures.normal);
+        }
+        else glBindTexture(GL_TEXTURE_2D, 0);
+        glUniform1i(glGetUniformLocation(program, "normalMap"), 3);
+
+        // Bind ao if available, otherwise use a default value
+        glActiveTexture(GL_TEXTURE4);
+        if (obj.textures.hasAO)
+        {
+            glBindTexture(GL_TEXTURE_2D, obj.textures.ao);
+        }
+        else glBindTexture(GL_TEXTURE_2D, 0);
+        glUniform1i(glGetUniformLocation(program, "aoMap"), 4);
+
+
+        glm::mat4 model = glm::mat4(1.f);
+        model = glm::translate(model, obj.position);
+        model = glm::rotate(model, glm::radians(obj.rotation.x), glm::vec3(1.f, 0.f, 0.f));
+        model = glm::rotate(model, glm::radians(obj.rotation.y), glm::vec3(0.f, 1.f, 0.f));
+        model = glm::rotate(model, glm::radians(obj.rotation.z), glm::vec3(0.f, 0.f, 1.f));
+        model = glm::scale(model, obj.scale);
+
+        // Set the model matrix uniform
+        glUniformMatrix4fv(glGetUniformLocation(program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+
+        // Draw the triangles
+        // position (3), colour (3), normal (3), alpha (1), and texcoords (2) = 12 floats per vertex
+        // length of vertices divided by floats per vertex gives number of vertices per object
+        glDrawArrays(GL_TRIANGLES, 0, obj.vertices.size() / 12);
+    }
+    glDisable(GL_BLEND);
+    glDepthMask(GL_TRUE);
 }
 
 void processKeyboard(GLFWwindow* window, double deltaTime)
@@ -415,7 +504,6 @@ void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
         state->FOV = 1.0f;
     if (state->FOV > 45.0f)
         state->FOV = 45.0f;
-    printf("FOV: %0.f\n", state->FOV);
 }
 
 void initialiseBuffers(std::vector<float> vertices, int bufferIndex)
@@ -424,16 +512,16 @@ void initialiseBuffers(std::vector<float> vertices, int bufferIndex)
     glBindVertexArray(VAOs[bufferIndex]);
     glBindBuffer(GL_ARRAY_BUFFER, Buffers[bufferIndex]);
     // Position (3 floats)
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
-    // Colour (3 floats)
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(3 * sizeof(float)));
+    // Colour (3 floats) + alpha (1)
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
     // Normal (3 floats)
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(6 * sizeof(float)));
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(7 * sizeof(float)));
     glEnableVertexAttribArray(2);
     // Texture (2 floats)
-    glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(9 * sizeof(float)));
+    glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(10 * sizeof(float)));
     glEnableVertexAttribArray(3);
 }
 
@@ -554,6 +642,12 @@ int main(int argc, char** argv)
     // Disable mouse cursor 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
+    glEnable(GL_DEPTH_TEST);
+
+    // Enable blending for transparency
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     for (int i = 0; i < 32; i++) {
         glActiveTexture(GL_TEXTURE0 + i);
         glBindTexture(GL_TEXTURE_2D, 0);
@@ -563,13 +657,14 @@ int main(int argc, char** argv)
 	// Initialising objects and their textures //
 	/////////////////////////////////////////////
 
-    std::vector<float> lowpoly_torus_vertices, highpoly_torus_vertices;
-    lowpoly_torus_vertices = generateTorus(1.f, 0.3f, 8, 4);
-    highpoly_torus_vertices = generateTorus(1.f, 0.3f, 32, 16);
+    std::vector<float> lowpoly_torus_vertices, highpoly_torus_vertices, transparent_torus_vertices;
+    lowpoly_torus_vertices = generateTorus(1.f, 0.3f, 8, 4 ,1.f);
+    highpoly_torus_vertices = generateTorus(1.f, 0.3f, 32, 16, 1.f);
+    transparent_torus_vertices = generateTorus(1.f, 1.0/4.0, 32, 16, 0.4f);
 
     // Model IDs
     int table, chair, floor, counter_table, counter_top, wall, grinder, coffee_machine, shelf, coffee_bag, light_bulb, light_fixture, light_switch,
-	low_torus, high_torus, plate, mug;
+	low_torus, high_torus, plate, mug, torus_green, torus_red, torus_blue;
     // Models paths
     std::string table_path = "../objects/table/", chair_path = "../objects/chair/", grinder_path = "../objects/grinder/", coffee_machine_path = "../objects/coffee_machine/",
 	shelf_path = "../objects/shelf/", coffee_bag_path = "../objects/coffee_bag/", light_bulb_path = "../objects/light/", light_fixture_path = "../objects/light2/",
@@ -613,18 +708,15 @@ int main(int argc, char** argv)
         grinder_path + "Grinder-color.png",
         grinder_path + "Grinder-normal.png",
         grinder_path+"Grinder-roughness.png",
-        grinder_path+"Grinder-metal.png",
-        "",
-        grinder_path+"Grinder-opacity.jpeg");
+        grinder_path+"Grinder-metal.png");
     coffee_machine = load(coffee_machine_path + "coffee_machine.obj",
         coffee_machine_path + "Coffee-Machine-Color.png",
         coffee_machine_path + "Coffee-Machine-Normal2.png",
         coffee_machine_path + "Coffee-Machine-Roughness.png",
-        coffee_machine_path + "Coffee-Machine-Metal1.png",
-        "", coffee_machine_path + "Coffee-Machine-Opacity.jpg");
+        coffee_machine_path + "Coffee-Machine-Metal1.png");
     shelf = load(shelf_path + "single_wood_shelf.obj",
         shelf_path + "T_shelf.002.png", "", "",
-        shelf_path + "metalnessMap1.png","");
+        shelf_path + "metalnessMap1.png");
     coffee_bag = load(coffee_bag_path + "Coffee_Paper_Bag..obj",
         coffee_bag_path + "initialShadingGroup_BaseColor.1001.png",
         coffee_bag_path + "initialShadingGroup_Normal.1001.png",
@@ -654,6 +746,13 @@ int main(int argc, char** argv)
         gold_path + "gold-scuffed_metallic.png");
     plate = load(plate_path + "plate.obj", plate_path + "white.png");
     mug = load(mug_path + "cup.obj", mug_path + "albedo.jpg", mug_path+"normal.jpg", mug_path+"roughness.jpg");
+    torus_green = addModel(transparent_torus_vertices,"../textures/green.png");
+    torus_red = addModel(transparent_torus_vertices, "../textures/red.png");
+    torus_blue = addModel(transparent_torus_vertices, "../textures/blue.png");
+
+    models.at(torus_green).textures.hasOpacity = true;
+    models.at(torus_red).textures.hasOpacity = true;
+    models.at(torus_blue).textures.hasOpacity = true;
 
     // Add light switch to the interactable list of models
     interactableObjects.push_back(light_switch);
@@ -679,6 +778,11 @@ int main(int argc, char** argv)
     setTranformations(high_torus, glm::vec3(6.01, 1.75, -0.02), glm::vec3(90, 0, 0), glm::vec3(0.085));
     setTranformations(plate, glm::vec3(4.1, -0.05, 0.5), glm::vec3(0), glm::vec3(0.07));
     setTranformations(mug, glm::vec3(4, 1.76, 0.5), glm::vec3(0), glm::vec3(0.0002));
+    setTranformations(torus_red, glm::vec3(5.1, 1.77, 0), glm::vec3(90, 0, 0), glm::vec3(0.2));
+    setTranformations(torus_blue, glm::vec3(5.1, 1.82, 0), glm::vec3(90, 0, 0), glm::vec3(0.15));
+    setTranformations(torus_green, glm::vec3(5.1, 1.87, 0), glm::vec3(90,0,0), glm::vec3(0.115));
+
+
 
     // Initialise AABB
     for (auto& model : models)
@@ -756,7 +860,6 @@ int main(int argc, char** argv)
     duplicateID = duplicateModel(plate);
     setTranformations(duplicateID, glm::vec3(6, -0.05, 0.55), glm::vec3(0), glm::vec3(0.07));
 
-    glEnable(GL_DEPTH_TEST);
     // Resize the vector to match the number of lights
     lightSpaceMatrices.resize(lights.size());
     cubeMapMatrices.resize(lights.size());
