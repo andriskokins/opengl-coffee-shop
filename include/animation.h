@@ -92,7 +92,7 @@ void updateAnimations(float deltaTime)
 	shadowUpdateTimer += deltaTime;
 
 	// Update shadow maps if animation is active
-	if (shadowUpdateTimer >= 0.02f && activeAnimation) 
+	if (shadowUpdateTimer >= 0.025f && activeAnimation) 
 	{
 		for (auto& light : lights)
 			light.shadow.updateShadow = true;

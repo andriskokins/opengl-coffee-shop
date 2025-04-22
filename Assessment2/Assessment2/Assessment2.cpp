@@ -84,8 +84,8 @@ std::vector<float> cube_vertices =
 GLuint Buffers[NUM_BUFFERS];
 GLuint VAOs[NUM_VAOS];
 
-#define WIDTH 1024
-#define HEIGHT 768
+#define WIDTH 1920
+#define HEIGHT 1080
 
 struct State
 {
@@ -614,6 +614,7 @@ int main(int argc, char** argv)
     glfwSetCursorPosCallback(window, mouseCallback);
     glfwSetScrollCallback(window, ScrollCallback);
     glfwSetMouseButtonCallback(window, mouseButtonCallback);
+    glfwSwapInterval(0); // Disable vsync
 
     gl3wInit();
 
