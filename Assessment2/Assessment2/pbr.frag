@@ -306,7 +306,7 @@ float shadowCubeMapOnFragment(Light light, int lightIndex)
     float currentDepth = length(fragToLight);
     
     vec3 lightDir = normalize(fragToLight);
-    float bias = max(0.5 * (1.0 - dot(normal, lightDir)), 0.0005);
+    float bias = max(0.005 * (1.0 - dot(normal, lightDir)), 0.0005);
     
     // Point light shadow PCF technique source - https://learnopengl.com/Advanced-Lighting/Shadows/Point-Shadows
     int samples = 20;

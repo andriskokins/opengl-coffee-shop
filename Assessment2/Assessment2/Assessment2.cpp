@@ -830,6 +830,25 @@ int main(int argc, char** argv)
 
     glfwSetTime(0); // Reset glfw time to account for loading time
 
+    ////////////////////
+    /// Instructions ///
+    ////////////////////
+
+    // Movement
+    printf("\n///////////////////////////////////////////////////////////////////////////////////////////////\n\n");
+    printf("Movement controls\n");
+    printf("---------------------\n");
+    printf("Use WASD to move\n");
+    printf("Use mouse to look around\n");
+    printf("Use left shift to speed up\nUse left alt to slow down\nUse left ctrl to crouch\n");
+    printf("Press G enables flight (fly through camera)\n");
+    printf("Use Q and E to go up and down while in flight camera mode\n\n");
+    // Interaction
+    printf("Interaction controls\n");
+    printf("---------------------\n");
+    printf("Use left mouse click to interact with objects (light switches on the wall)\n");
+    printf("Use 0 to 3 to select a light and press F to set that light's position at the camera location\n\n");
+
     while (!glfwWindowShouldClose(window))
     {
         // Get current time for this frame

@@ -8,6 +8,7 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+// Source: https://www.songho.ca/opengl/gl_torus.html
 std::vector<float> generateTorus(float majorRadius, float minorRadius, int majorSegments, int minorSegments, float opacity)
 {
     std::vector<float> vertices;

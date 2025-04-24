@@ -66,7 +66,7 @@ void ProcessMouseMovement(SCamera& in, float xoffset, float yoffset)
     front.z = sin(glm::radians(in.Yaw)) * cos(glm::radians(in.Pitch));
     in.Front = glm::normalize(front);
 
-    // Also recalculate the Right and Up vector
+    // Calculate the Right and Up vector
     in.Right = glm::normalize(glm::cross(in.Front, in.WorldUp));
     in.Up = glm::normalize(glm::cross(in.Right, in.Front));
 }
