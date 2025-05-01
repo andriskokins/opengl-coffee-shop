@@ -402,7 +402,8 @@ void generateCubeMap(unsigned int shadowCubeMapProgram, ShadowStruct cubeMap, gl
 void renderWithShadows(unsigned int renderShadowProgram, std::vector<glm::mat4> lightSpaceMatrices, std::vector<std::array<glm::mat4, 6>> transforms, State state)
 {
     glViewport(0, 0, WIDTH, HEIGHT);
-    static const GLfloat bgd[] = { 0.f, 0.f, 0.f, 1.f };
+    glm::vec3 colour = rgb2vec(20, 20, 20);
+    static const GLfloat bgd[] = { colour.r, colour.g, colour.b, 1.f };
     glClearBufferfv(GL_COLOR, 0, bgd);
     glClear(GL_DEPTH_BUFFER_BIT);
 
@@ -502,7 +503,8 @@ void initialiseBuffers(std::vector<float> vertices, int bufferIndex)
     glEnableVertexAttribArray(3);
 }
 
-void handleInteraction(int modelId, float distance) {
+void handleInteraction(int modelId, float distance)
+{
     if (std::find(interactableObjects.begin(), interactableObjects.end(), modelId) != interactableObjects.end()) 
     {
         glm::vec3 currentRotation = models.at(modelId).rotation;
@@ -524,19 +526,19 @@ void handleInteraction(int modelId, float distance) {
         setTranformations(modelId, newPosition, newRotation, models.at(modelId).scale);
 
         // Toggle the lights
-        if (modelId == interactableObjects.at(0))
+        if (modelId == interactableObjects.at(0)) // First light switch toggles directional light
         {
             lights.at(0).isOn = !lights.at(0).isOn;
             lights.at(0).shadow.updateShadow = true;
         }
-        else if(modelId == interactableObjects.at(1))
+        else if(modelId == interactableObjects.at(1)) // Middle light switch toggles both of the spotlights
         {
             lights.at(1).isOn = !lights.at(1).isOn;
             lights.at(2).isOn = !lights.at(2).isOn;
             lights.at(1).shadow.updateShadow = true;
             lights.at(2).shadow.updateShadow = true;
         }
-        else if (modelId == interactableObjects.at(2))
+        else if (modelId == interactableObjects.at(2)) // Third light switch toggles the positional light 
         {
             lights.at(3).isOn = !lights.at(3).isOn;
             lights.at(3).shadow.updateShadow = true;
@@ -544,7 +546,8 @@ void handleInteraction(int modelId, float distance) {
     }
 }
 
-void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
+void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
+{
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) 
     {
         // Get ray origin and direction from camera
@@ -771,11 +774,11 @@ int main(int argc, char** argv)
         calculateAABB(model);
 
     // Add lighting to the scene
-    addDirectionalLight(glm::normalize(glm::vec3(0.01f, -1.0f, -0.01f)), glm::vec3(1), 0.3f);
-    addSpotLight(glm::vec3(0.001, -0.99, 0.001), glm::vec3(0, 6.95f, -2.5), rgb2vec(255, 212, 226), 1.f);
-    addSpotLight(glm::vec3(0.001, -0.99, 0.001), glm::vec3(0, 6.95f, 5), rgb2vec(210, 230, 255), 1.f);
+    addDirectionalLight(glm::normalize(glm::vec3(0.01f, -1.0f, -0.01f)), glm::vec3(1), 0.35f);
+    addSpotLight(glm::vec3(0.001, -0.99, 0.001), glm::vec3(0, 6.95f, -2.5), rgb2vec(255, 212, 226), 2.f);
+    addSpotLight(glm::vec3(0.001, -0.99, 0.001), glm::vec3(0, 6.95f, 5), rgb2vec(210, 230, 255), 2.f);
 
-    addPositionalLight(glm::vec3(5, 6, 0), rgb2vec(255,223,142) , 1.f);
+    addPositionalLight(glm::vec3(5, 6, 0), rgb2vec(255,223,142) , 6.f);
     // Reserve memory for each light
     cubeMapMatrices.reserve(lights.size());
     lightSpaceMatrices.reserve(lights.size());

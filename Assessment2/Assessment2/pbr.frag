@@ -88,7 +88,7 @@ void main()
     F0 = mix(F0, albedo, metallic);
 
     // Initialize output color with ambient lighting
-    vec3 ambient = vec3(0.03) * albedo * ao;
+    vec3 ambient = vec3(0.25) * albedo * ao;
     vec3 Lo = vec3(0.0);
     
     // Process all lights
@@ -155,7 +155,7 @@ vec3 calculatePBR(Light light, vec3 N, vec3 V, vec3 F0, int lightIndex)
     }
     
     // If completely in shadow, only return ambient contribution
-    if(shadow >= 0.99) return vec3(0.0);
+    //if(shadow >= 0.99) return vec3(0.0);
     
     // Rest of your PBR calculation remains the same
     vec3 H = normalize(V + L);
@@ -180,7 +180,8 @@ vec3 calculatePBR(Light light, vec3 N, vec3 V, vec3 F0, int lightIndex)
     float NdotL = max(dot(N, L), 0.0);                
     
     // Apply shadow factor to the direct lighting
-    return (kD * albedo / PI + specular) * radiance * NdotL * (1.0 - shadow);
+    float shadowFactor = mix(0.15, 1.0, 1.0 - shadow); // Allow 25% light through even in shadow
+    return (kD * albedo / PI + specular) * radiance * NdotL * shadowFactor;
 }
 
 vec3 fresnelSchlick(float cosTheta, vec3 F0)
