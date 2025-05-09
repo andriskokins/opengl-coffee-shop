@@ -73,7 +73,7 @@ int createAnimation(int model, float duration, float delay, glm::vec3 endPos, gl
 
 	// Use control points to make a smoother curve
 	std::vector<point> curve = EvaluateBezierCurve(ctrl_points, 64);
-	anim.pathPoints = ctrl_points;
+	anim.pathPoints = curve;
 
 	animations.push_back(anim);
 

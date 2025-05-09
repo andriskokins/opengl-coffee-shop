@@ -607,7 +607,7 @@ int main(int argc, char** argv)
 
     glfwInit();
 
-    glfwWindowHint(GLFW_SAMPLES, 2);
+    glfwWindowHint(GLFW_SAMPLES, 4); // Anti-aliasing
 
     glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);  // Make window visible
     GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "", NULL, NULL);
@@ -775,11 +775,11 @@ int main(int argc, char** argv)
 
     // Add lighting to the scene
     addDirectionalLight(glm::normalize(glm::vec3(0.01f, -1.0f, -0.01f)), glm::vec3(1), 0.35f);
-    addSpotLight(glm::vec3(0.001, -0.99, 0.001), glm::vec3(0, 6.95f, -2.5), rgb2vec(255, 212, 226), 2.f);
-    addSpotLight(glm::vec3(0.001, -0.99, 0.001), glm::vec3(0, 6.95f, 5), rgb2vec(210, 230, 255), 2.f);
-
+    addSpotLight(glm::vec3(0.001, -0.99, 0.001), glm::vec3(0, 6.95f, -2.5), rgb2vec(255, 212, 226), 1.75f);
+    addSpotLight(glm::vec3(0.001, -0.99, 0.001), glm::vec3(0, 6.95f, 5), rgb2vec(210, 230, 255), 1.75f);
     addPositionalLight(glm::vec3(5, 6, 0), rgb2vec(255,223,142) , 6.f);
-    // Reserve memory for each light
+
+    // Reserve memory for lights
     cubeMapMatrices.reserve(lights.size());
     lightSpaceMatrices.reserve(lights.size());
 

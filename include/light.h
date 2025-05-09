@@ -70,11 +70,6 @@ void addSpotLight(glm::vec3 direction, glm::vec3 position, glm::vec3 colour, flo
     printf("Light: added spot light\n");
 }
 
-std::vector<Light> getLights()
-{
-    return lights;
-}
-
 glm::vec3 rgb2vec(int r, int g, int b)
 {
     return glm::vec3((float) r / 255.f, (float)g / 255.f, (float)b / 255.f);
