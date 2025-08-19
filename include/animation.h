@@ -142,3 +142,30 @@ void updateAnimations(float deltaTime)
 		setTranformations(anim.model, currentPosition, currentRotation, models.at(anim.model).scale);
 	}
 }
+
+void resetAnimations()
+{
+	for (auto& anim : animations)
+	{
+		// Reset animation state to initial values
+		anim.currentTime = 0.0f;
+		anim.delayTimer = 0.0f;
+		anim.isPlaying = true;
+		anim.hasStarted = true;
+
+		// Reset the model position to starting position
+		setTranformations(anim.model, anim.startPosition, anim.startRotation, models.at(anim.model).scale);
+	}
+
+	// If we have animations, set activeAnimation to true to trigger shadow updates
+	if (!animations.empty()) {
+		activeAnimation = true;
+
+		// Also force shadow updates immediately
+		for (auto& light : lights) {
+			light.shadow.updateShadow = true;
+		}
+
+		std::cout << "Animations reset to initial state" << std::endl;
+	}
+}

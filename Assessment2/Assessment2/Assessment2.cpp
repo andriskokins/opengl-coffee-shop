@@ -320,6 +320,11 @@ void processKeyboard(GLFWwindow* window, double deltaTime)
         state->crouchEnabled = !state->crouchEnabled;
         std::cout << "Crouch: " << (state->crouchEnabled ? "ON" : "OFF") << std::endl;
     }
+    // Reset animations
+    if (keyJustPressed(GLFW_KEY_R))
+    {
+        resetAnimations();
+    }
 
     if (!state->noClipEnabled)
         Camera.Position.y = 2.5f; // ground camera for first person effect
