@@ -48,12 +48,11 @@ cd opengl-coffee-shop
    - Open `Assessment2.sln` in Visual Studio
 
 2. **Configure the Project**
-   - Ensure the platform is set to **x64** (recommended) or **Win32**
-   - Select **Debug** or **Release** configuration
+   - Ensure the platform is set to **x64**
+   - Select **Debug** configuration
 
 3. **Build**
-   - Build the solution using `Ctrl+Shift+B` or **Build > Build Solution**
-   - The executable will be created in the appropriate configuration directory
+   - Start Without Debugging `Ctrl+F5` or **Debug > Start Without Debugging**
 
 ### Directory Structure
 
@@ -81,16 +80,12 @@ opengl-coffee-shop/
 ### Controls
 
 - **W/A/S/D** - Move camera forward/left/backward/right
+- **Left CTRL** - Crouch
+- **G** - Toggle between fly through and first person camera
 - **Mouse** - Look around (first-person camera)
 - **Mouse Scroll** - Zoom in/out
 - **Left Click** - Interact with objects (e.g., light switches)
 - **ESC** - Exit application
-
-### Running the Application
-
-1. Build the project successfully
-2. Run the executable from Visual Studio or navigate to the output directory
-3. Ensure the working directory is set correctly so the application can find the `objects/` and `textures/` folders
 
 ## Technical Details
 
@@ -107,43 +102,10 @@ opengl-coffee-shop/
 - **Textures**: Various formats supported through STB Image
 - **Materials**: PBR workflow with multiple texture maps per material
 
-## Troubleshooting
-
-### Common Issues
-
-1. **Build Errors**
-   - Ensure Visual Studio has C++ development tools installed
-   - Check that the platform target (x64/Win32) matches your system
-
-2. **Missing Textures/Models**
-   - Verify the working directory is set to the project root
-   - Ensure `objects/` and `textures/` directories are accessible
-
-3. **OpenGL Errors**
-   - Update graphics drivers
-   - Verify OpenGL 3.3+ support on your graphics card
-
-4. **Performance Issues**
-   - Try Release configuration instead of Debug
-   - Lower shadow map resolution if needed
-   - Ensure graphics drivers are up to date
-
-## Contributing
-
-This project is part of a computer graphics coursework. If you'd like to contribute or use this as a learning resource:
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
-
-## License
-
-This project is created for educational purposes. Please respect any third-party asset licenses included in the `objects/` and `textures/` directories.
-
 ## Acknowledgments
-
+      
 - **GLFW** for window management
 - **GLM** for mathematics operations
 - **STB** for image loading
 - Various texture and model assets used for demonstration purposes
+- University of Nottingham for the coursework opportunity
