@@ -13,7 +13,8 @@ A 3D coffee shop simulation built with OpenGL, featuring realistic lighting, sha
 - **Animation System**: Smooth object animations and transformations
 
 ## Demo
-[Demo](docs/demo.gif)
+
+![Demo](docs/demo.gif)
 
 ## Prerequisites
 
