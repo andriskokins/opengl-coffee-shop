@@ -106,5 +106,6 @@ opengl-coffee-shop/
 - **GLFW** for window management
 - **GLM** for mathematics operations
 - **STB** for image loading
-- Various texture and model assets used for demonstration purposes
+- [Sketchfab](https://sketchfab.com/) for models
+- [Freepbr](https://freepbr.com/) for textures
 - University of Nottingham for the coursework opportunity
